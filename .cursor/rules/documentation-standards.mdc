@@ -1,0 +1,50 @@
+---
+description: Documentation authoring and maintenance rules
+globs: "docs/**,**/*.md"
+alwaysApply: false
+---
+
+# Documentation Standards
+
+## Hierarchy
+
+| Location | Purpose |
+|----------|---------|
+| `docs/current-state/` | **Implementation truth** — what exists and what to build now |
+| `docs/future-vision/` | **Aspirational scope** — do not implement unless promoted |
+| `docs/PRD.md` | Product requirements |
+| `docs/adr/` | Architecture decisions (immutable once accepted) |
+| `docs/proposals/` | Proposed ADR/architecture changes — **staging only** |
+| `docs/architecture/` | Technical design |
+| `docs/feature-specs/` | Per-feature implementation specs |
+| `docs/canonical-numbers.md` | **Authoritative** numeric targets |
+| `docs/performance/` | Per-scene GPU, bundle, and memory budgets |
+| `docs/memory/` | Active work, backlog, lessons learned |
+
+## When to Write
+
+- **Behavior change** → update feature spec + API contracts if endpoints/events change.
+- **New dependency or pattern** → proposal in `docs/proposals/` first, then new ADR before merge.
+- **ADR conflict** → proposal only; never edit accepted ADRs in place.
+- **Numeric target change** → update `canonical-numbers.md` first, then referencing docs.
+- **Completed feature** → entry in `docs/memory/completed-features.md`.
+
+## Format
+
+- Markdown with **Purpose**, **Responsibilities**, and **References** sections for architecture docs.
+- Mermaid for diagrams; keep ASCII for simple flows in rules/comments.
+- Link related docs with relative paths: `[ADR-0014](../adr/0014-performance-targets.md)`.
+- Status headers on ADRs: `Accepted`, `Superseded`, `Deprecated`.
+
+## Code Comments
+
+- Code should be self-explanatory; comments explain **why**, not what.
+- JSDoc on **exported** shared types and public API methods only.
+- Do not duplicate doc content in code comments — link to `docs/` instead.
+
+## Prohibited
+
+- Implementing features from `future-vision/` without promotion to `current-state/` or explicit `active-work.md` scope.
+- Ranges like "50–100 agents" in new docs — use exact phase targets from canonical-numbers.
+- Undocumented WebSocket events or REST endpoints (must match `api-contracts.md`).
+- Stale README claims — keep aligned with ADR-0006 product scope.

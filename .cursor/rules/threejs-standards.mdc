@@ -1,0 +1,51 @@
+---
+description: React Three Fiber and Three.js rendering conventions
+globs: "apps/web/scenes/**,apps/web/controllers/**"
+alwaysApply: false
+---
+
+# Three.js / R3F Standards
+
+## Canvas Strategy
+
+- **Single persistent `<Canvas>`** across scale transitions — swap scenes, do not remount Canvas.
+- Scenes live in `apps/web/scenes/{scale}/`; register via `SceneRouter`, not nested Canvases.
+
+## Scene Graph
+
+- Follow node types in `docs/architecture/scene-graph.md`: `DistrictNode`, `BuildingNode`, etc.
+- **One active branch** visible/interactive; unmount or hide inactive scale branches.
+- Entity meshes keyed by **server entity ID** for sync and picking.
+
+## Controllers (Non-React)
+
+- Camera, input, LOD, and scale transitions → `apps/web/controllers/` as plain TS classes.
+- Controllers receive store snapshots or refs — **no React hooks** inside controller classes.
+- MVP scale transitions: **instant scene cut** (< 500 ms); animated flights are v1+.
+
+## Renderer Config
+
+```typescript
+// Match docs/architecture/rendering.md
+powerPreference: 'high-performance',
+toneMapping: THREE.ACESFilmicToneMapping,
+outputColorSpace: THREE.SRGBColorSpace,
+pixelRatio: Math.min(window.devicePixelRatio, 2),
+```
+
+## LOD & Assets
+
+- **LODManager** assigns levels before rendering detail (see rendering.md distance table).
+- Use **instancing** for agent swarms and repeated geometry.
+- Load glTF via `@react-three/drei` `useGLTF`; dispose geometries/materials on unmount.
+- Post-processing via `@react-three/postprocessing` — keep bloom/vignette budgets minimal on mobile.
+
+## Frame Loop
+
+- Heavy work (spatial indexing, LOD recalc) **outside** `useFrame` when possible — throttle to intervals.
+- No `setState` every frame; mutate refs or use `@react-three/fiber` imperative APIs.
+- Dev-only: `@react-three/perf` overlay enabled in development builds.
+
+## Picking
+
+- Raycasting through R3F `onClick` / event system; selection updates `navigationStore`, not local scene state alone.

@@ -1,0 +1,42 @@
+---
+description: Merge request author checklist before opening or merging PRs
+alwaysApply: false
+---
+
+# PR Checklist
+
+## Before Opening
+
+- [ ] Branch named per convention (`feat/`, `fix/`, `docs/`, `chore/`)
+- [ ] Conventional commit messages with issue reference (`#123`)
+- [ ] Scope is single-purpose; shared types + consumers updated together
+- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test` pass locally
+- [ ] No secrets, `.env` files, or debug logging committed
+
+## MR Description
+
+- [ ] **Summary**: what changed and why (1–3 bullets)
+- [ ] **Test plan**: concrete steps reviewer can follow
+- [ ] Links to feature spec, ADR, or GitLab issue
+- [ ] Screenshots/video for UI or 3D visual changes
+- [ ] Breaking changes called out explicitly
+
+## Contract Changes
+
+- [ ] `packages/shared` updated first if types/events changed
+- [ ] `api-contracts.md` updated for REST/WS changes
+- [ ] Both `apps/web` and `apps/api` compile against new shared types
+- [ ] Migration notes included if Prisma schema changed
+
+## Performance & Scale
+
+- [ ] LOD / instancing considered for new 3D geometry
+- [ ] Agent/building counts respect phase limits in canonical-numbers
+- [ ] No regression in WS message volume (diffs, not full state dumps)
+
+## Final Gate
+
+- [ ] CI green (lint, typecheck, tests)
+- [ ] Self-reviewed using `review-checklist.mdc`
+- [ ] Reviewer assigned; labels/milestone set
+- [ ] MR description updated if review feedback changed behavior

@@ -1,0 +1,57 @@
+---
+description: Code review checklist — use when reviewing diffs or MRs
+alwaysApply: false
+---
+
+# Code Review Checklist
+
+## Spec & Architecture
+
+- [ ] Matches relevant `docs/feature-specs/` entry
+- [ ] Respects module boundaries (NestJS domain modules, R3F scene folders)
+- [ ] Uses `@ultron/shared` types — no duplicated enums or WS event shapes
+- [ ] REST/WS changes reflected in `docs/architecture/api-contracts.md`
+- [ ] Numeric values match `docs/canonical-numbers.md`
+- [ ] New patterns have an ADR if architectural
+
+## TypeScript & Quality
+
+- [ ] Strict mode compliant; no unjustified `any` or `@ts-ignore`
+- [ ] Exported functions have explicit return types
+- [ ] Error handling on all API endpoints and async client flows
+- [ ] Input validation on all external inputs (DTOs / Zod)
+- [ ] Soft deletes respected in database queries
+
+## Frontend
+
+- [ ] Canvas loaded with `ssr: false`; single Canvas maintained
+- [ ] Zustand narrow selectors; correct store ownership
+- [ ] Tailwind + design tokens; accessible 2D alternatives for 3D actions
+- [ ] LOD applied before high-detail geometry
+
+## Backend
+
+- [ ] Versioned under `/api/v1/`
+- [ ] No blocking LLM calls in controllers — queued via Bull
+- [ ] Redis/WS channel names match contracts
+- [ ] Prometheus metrics for new endpoints
+- [ ] No N+1 queries; indexes used
+
+## Security
+
+- [ ] No secrets in code or logs
+- [ ] No user input in paths, shell, or dynamic imports
+- [ ] Output escaped where rendered in HTML
+- [ ] Rate limiting on new public endpoints
+
+## Performance
+
+- [ ] Scene code-split by scale; assets instanced where specified
+- [ ] WS updates throttled/batched appropriately
+- [ ] No per-frame React state updates in 3D loop
+
+## Tests & Docs
+
+- [ ] Tests cover new business logic and validation
+- [ ] Feature spec / memory docs updated if behavior changed
+- [ ] Technical debt flagged in `docs/memory/technical-debt.md` if deferred

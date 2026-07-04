@@ -1,0 +1,56 @@
+---
+description: TypeScript strict-mode conventions for all TS/TSX code
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript Standards
+
+## Compiler & Config
+
+- **Strict mode** enabled in all packages; no `@ts-ignore` without a linked issue.
+- Prefer **`interface`** for object shapes; **`type`** for unions, mapped types, and utility aliases.
+- Use **`satisfies`** for config objects that must infer narrowly (renderer config, theme tokens).
+
+## Types
+
+```typescript
+// ❌ BAD — duplicated enum
+enum ScaleLevel { Megacity = 'megacity' }
+
+// ✅ GOOD — import from shared
+import { ScaleLevel } from '@ultron/shared';
+```
+
+- **No `any`** without a `// justified:` comment and ticket reference.
+- Prefer **`unknown`** + narrowing over `any` in catch blocks and external payloads.
+- **Discriminated unions** for WebSocket events and API responses (match `api-contracts.md`).
+- Export public types from `@ultron/shared`; app-local types stay in feature folders.
+
+## Functions & Modules
+
+- Explicit return types on **exported** functions and service methods.
+- Use **`async/await`**; avoid raw `.then()` chains in application code.
+- **Barrel files** (`index.ts`) only at package boundaries — not inside feature folders.
+- Prefer **named exports**; default exports only for Next.js pages/layouts.
+
+## Error Handling
+
+```typescript
+// ❌ BAD
+try { await fetchState(); } catch (e) {}
+
+// ✅ GOOD
+try {
+  await fetchState();
+} catch (error) {
+  logger.error('Failed to fetch world state', { error });
+  throw new WorldStateError('Unable to load navigation state', { cause: error });
+}
+```
+
+## Validation
+
+- **Backend**: class-validator DTOs on every REST body/query param.
+- **Frontend**: validate WS payloads with Zod schemas mirroring shared types.
+- Use **`===` / `!==`** exclusively (no loose equality).

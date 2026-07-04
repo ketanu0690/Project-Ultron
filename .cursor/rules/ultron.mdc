@@ -1,0 +1,32 @@
+---
+description: Pre- and post-code documentation workflow — read before, update after
+alwaysApply: true
+---
+
+# Ultron Development Workflow
+
+## Before Writing Code
+
+1. **Read ADRs** — `docs/adr/` for accepted decisions that constrain the change.
+2. **Read memory docs** — `docs/memory/` (especially `active-work.md`, `project-context.md`, `architecture-decisions.md`).
+3. **Read current state** — `docs/current-state/` — implement **only** what is listed as current; do not build from `docs/future-vision/` unless explicitly scoped.
+4. **Read current feature spec** — `docs/feature-specs/` for the feature you are implementing.
+5. **Read performance budget** — `docs/performance/performance-budget.md` when touching 3D scenes or assets.
+
+## After Writing Code
+
+1. **Update memory docs** — reflect current state in `docs/memory/` (`active-work.md`, `backlog.md`, `lessons-learned.md`, `technical-debt.md` as applicable).
+2. **Update architecture decisions** — new or changed patterns → `docs/proposals/` first, then ADR after approval; working notes → `docs/memory/architecture-decisions.md`.
+3. **Update completed work** — log finished features in `docs/memory/completed-features.md`.
+4. **Update current state** — when scope ships, move capabilities from `docs/future-vision/` to `docs/current-state/`.
+
+**Never leave documentation stale.**
+
+## Governance (Always Apply)
+
+See [governance.mdc](governance.mdc) for:
+
+- **Architecture Lock** — `docs/adr/`, `docs/architecture/`, `docs/design-system/` win; never auto-edit ADRs; use `docs/proposals/`
+- **No Assumption Rule** — no invented architecture when docs are missing
+- **Dependency Rule** — justify, measure bundle impact, prefer existing stack
+- **Technical Decision Evaluation** — scorecard required for major decisions

@@ -1,0 +1,51 @@
+---
+description: Patterns that must never appear in Project Ultron code
+alwaysApply: true
+---
+
+# Forbidden Patterns
+
+## Architecture
+
+| Pattern | Why Forbidden | Alternative |
+|---------|---------------|-------------|
+| Second `<Canvas>` per page | Memory pressure, breaks transitions | Single Canvas + SceneRouter |
+| R3F in Server Components | SSR incompatible | `dynamic(..., { ssr: false })` |
+| Direct LLM SDK in frontend | Security, budget control | Backend `ModelRouter` / LangGraph |
+| Duplicated enums/types | Drift across monorepo | `@ultron/shared` |
+| GraphQL at MVP | ADR-0010 | REST + WebSocket |
+| Redux / RTK Query | ADR-0004 | Zustand + WS sync |
+| CSS-in-JS libraries | ADR-0002 | Tailwind |
+| Cross-import `apps/api` ↔ `apps/web` | Boundary violation | REST/WS contracts |
+
+## Security
+
+- **`eval`**, `new Function()`, `vm.runInNewContext()` on dynamic input.
+- User input in **file paths**, shell commands, or dynamic `require()`.
+- **Hardcoded secrets** — use environment variables.
+- **`http://`** for external calls in production.
+- Logging passwords, tokens, API keys, or PII.
+- Disabling SSL validation.
+
+## TypeScript / React
+
+- **`any`** without justified comment + ticket.
+- **`@ts-ignore`** without issue link.
+- **`==` / `!=`** — use strict equality.
+- **`setState` every frame** in R3F — use refs/imperative API.
+- **Array index keys** for dynamic entity lists.
+
+## Data & API
+
+- Hard deletes on user-facing entities — use **soft delete** (`deletedAt`).
+- Undocumented REST routes or WS events.
+- N+1 Prisma queries without justification.
+- Blocking HTTP handlers on LLM inference.
+
+## Documentation
+
+- Conflicting numeric targets without ADR + `canonical-numbers.md` update.
+- New agent population ranges instead of phase-specific exact counts.
+- **Editing accepted ADRs** — use `docs/proposals/` + new superseding ADR after human approval.
+- **Hidden architecture** — undocumented stores, services, APIs, or patterns (see governance.mdc).
+- **New critical-path dependencies** without proposal (state, ORM, rendering, AI SDK).

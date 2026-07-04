@@ -1,0 +1,40 @@
+---
+description: Performance budgets and profiling requirements
+globs: "apps/web/**,apps/api/**"
+alwaysApply: false
+---
+
+# Performance Standards
+
+## Frame Rate Targets (ADR-0014)
+
+| Metric | Design | Ship Gate | Platform |
+|--------|--------|-----------|----------|
+| FPS P50 | 60 | 30 | Desktop |
+| FPS P50 | 30 | 24 | Mobile |
+| Frame time | < 16.6 ms | < 33.3 ms | Desktop |
+| Scene load | < 3 s | < 5 s | Desktop |
+| Agent first token | < 1.5 s P50 | < 2 s P95 | All |
+
+**Design for 60, ship at 30** on reference hardware (GTX 1660 / RX 580, 1080p).
+
+## Frontend
+
+- Code-split scenes **per scale level**; lazy-load inactive scales.
+- Apply **LOD** before high-poly meshes; frustum-cull distant entities.
+- Cap `pixelRatio` at 2; reduce post-processing on mobile.
+- Throttle WS-driven re-renders — batch entity diffs per frame when possible.
+- Report sampled FPS to Prometheus in production (1% sample).
+
+## Backend
+
+- Index all foreign keys and common query filters; no N+1 (use Prisma `include` deliberately).
+- Throttle WebSocket broadcasts per channel spec in `realtime.md`.
+- Bull queues for simulation, training, inference — **never** block HTTP handlers on LLM calls.
+- Prometheus metrics interceptor on all endpoints from day one.
+
+## Profiling
+
+- `@react-three/perf` in dev; manual milestone FPS checks (CI does not gate FPS).
+- Track regressions in Grafana; reference `docs/canonical-numbers.md` for population limits.
+- **Scene budgets** (draw calls, bundle, memory per scale): `docs/performance/performance-budget.md` — read before adding geometry or assets.

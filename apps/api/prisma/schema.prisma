@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BuildingState {
+  planned
+  constructing
+  active
+  degraded
+  offline
+}
+
+enum BuildingDetailLevel {
+  full
+  lod_footprint
+}
+
+enum AgentRole {
+  planner
+  simulator
+  debater
+  verifier
+}
+
+enum AgentStatus {
+  idle
+  thinking
+  acting
+  learning
+  migrating
+  offline
+  error
+}
+
+enum MemoryType {
+  short_term
+  episodic
+  semantic
+  procedural
+}
+
+model District {
+  id          String    @id @default(uuid()) @db.Uuid
+  slug        String    @unique
+  name        String
+  themeConfig Json      @default("{}") @map("theme_config")
+  agentCount  Int       @default(0) @map("agent_count")
+  metrics     Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  buildings Building[]
+  agents    Agent[]
+
+  @@index([deletedAt])
+  @@map("districts")
+}
+
+model Building {
+  id          String              @id @default(uuid()) @db.Uuid
+  slug        String              @unique
+  districtId  String              @map("district_id") @db.Uuid
+  buildingType String             @map("building_type")
+  name        String
+  state       BuildingState       @default(planned)
+  detailLevel BuildingDetailLevel @default(lod_footprint) @map("detail_level")
+  position    Json                @default("{\"x\":0,\"y\":0,\"z\":0}")
+  capacity    Json                @default("{}")
+  metrics     Json                @default("{}")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  deletedAt   DateTime?           @map("deleted_at")
+
+  district District @relation(fields: [districtId], references: [id])
+  rooms    Room[]
+  agents   Agent[]
+
+  @@index([districtId])
+  @@index([state])
+  @@index([deletedAt])
+  @@map("buildings")
+}
+
+model Room {
+  id         String    @id @default(uuid()) @db.Uuid
+  slug       String    @unique
+  buildingId String    @map("building_id") @db.Uuid
+  name       String
+  roomType   String    @map("room_type")
+  floorIndex Int       @default(1) @map("floor_index")
+  position   Json      @default("{\"x\":0,\"y\":0,\"z\":0}")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  building Building @relation(fields: [buildingId], references: [id])
+  agents   Agent[]
+
+  @@index([buildingId])
+  @@index([deletedAt])
+  @@map("rooms")
+}
+
+model Agent {
+  id              String      @id @default(uuid()) @db.Uuid
+  slug            String      @unique
+  name            String
+  role            AgentRole
+  homeDistrictId  String      @map("home_district_id") @db.Uuid
+  homeBuildingId  String      @map("home_building_id") @db.Uuid
+  homeRoomId      String?     @map("home_room_id") @db.Uuid
+  model           String
+  version         String      @default("1.0.0")
+  status          AgentStatus @default(idle)
+  capabilities    Json        @default("[]")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  deletedAt       DateTime?   @map("deleted_at")
+
+  homeDistrict District      @relation(fields: [homeDistrictId], references: [id])
+  homeBuilding Building      @relation(fields: [homeBuildingId], references: [id])
+  homeRoom     Room?         @relation(fields: [homeRoomId], references: [id])
+  memories     AgentMemory[]
+
+  @@index([homeDistrictId])
+  @@index([homeBuildingId])
+  @@index([role])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("agents")
+}
+
+model AgentMemory {
+  id        String     @id @default(uuid()) @db.Uuid
+  agentId   String     @map("agent_id") @db.Uuid
+  type      MemoryType
+  content   String     @db.Text
+  metadata  Json       @default("{}")
+  createdAt DateTime   @default(now()) @map("created_at")
+  expiresAt DateTime?  @map("expires_at")
+  deletedAt DateTime?  @map("deleted_at")
+
+  agent Agent @relation(fields: [agentId], references: [id])
+
+  @@index([agentId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("agent_memories")
+}

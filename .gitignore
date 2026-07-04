@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+.next/
+out/
+build/
+.turbo/
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Environment (keep examples)
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Debug / logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Next.js
+next-env.d.ts
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Tooling caches
+.eslintcache
+.cache/
+
+# Certificates / keys
+*.pem
+
+# Prisma local databases
+*.db
+*.db-journal
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini

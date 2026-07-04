@@ -1,0 +1,41 @@
+---
+description: Git branching, commits, and merge request conventions
+alwaysApply: true
+---
+
+# Git Workflow
+
+## Branching
+
+- **`main`** — production-ready; protected.
+- **Feature branches**: `feat/<issue>-short-description`, `fix/`, `docs/`, `chore/`.
+- One logical change per branch; atomic updates across `apps/` + `packages/shared` when contracts change.
+
+## Commits
+
+Use **Conventional Commits**:
+
+```
+feat(web): add megacity LOD footprints
+fix(api): validate navigation scale param
+docs: reconcile FPS targets with ADR-0014
+chore: bump three to r182
+```
+
+- Reference GitLab issues: `feat(agents): add dialogue stream #42`
+- Imperative mood, ≤ 72 char subject; body explains **why** when not obvious.
+- Never commit secrets (`.env`, keys, credentials).
+
+## Merge Requests
+
+- **Small, focused MRs** with clear purpose and test plan.
+- Update MR description when behavior changes during review.
+- Use labels and milestones per GitLab project conventions.
+- Require passing CI (lint, typecheck, tests) before merge.
+- Shared type changes must include **both** consumer updates in the same MR.
+
+## Pre-Merge
+
+- Self-review diff against feature spec and `api-contracts.md`.
+- Run `pnpm lint`, `pnpm typecheck`, `pnpm test` locally.
+- No force-push to `main`; rebase feature branches on latest `main` before merge.

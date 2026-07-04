@@ -1,0 +1,58 @@
+---
+description: Monorepo layout, naming conventions, and architecture boundaries
+alwaysApply: true
+---
+
+# Project Structure & Boundaries
+
+## Monorepo Layout
+
+```
+Project-Ultron/
+├── apps/web/          # Next.js 15+ (App Router, R3F world + UI)
+├── apps/api/          # NestJS REST + WebSocket
+├── packages/shared/   # Types, constants, events (@ultron/shared)
+├── packages/personality/
+├── docs/              # Specs, ADRs, architecture (source of truth)
+├── infra/             # Docker, Prometheus, Grafana
+└── Personality/       # Brand voice (prompt source)
+```
+
+## Folder Rules
+
+- **New app code** goes in `apps/`; **shared contracts** go in `packages/shared`.
+- **3D scenes** → `apps/web/scenes/{scale}/`; **non-React logic** → `apps/web/controllers/`.
+- **Zustand stores** → `apps/web/stores/` (exactly four stores per ADR-0004).
+- **NestJS domains** → `apps/api/src/modules/{domain}/` (one module per domain).
+- **Do not** add top-level source folders outside this layout without an ADR.
+
+## Naming Conventions
+
+| Artifact | Convention | Example |
+|----------|------------|---------|
+| Directories / routes | kebab-case | `orbital-ring/`, `[scale]/` |
+| React components | PascalCase file + export | `GlassPanel.tsx` |
+| Hooks | camelCase, `use` prefix | `useSelectEntity.ts` |
+| Stores | camelCase + `Store` | `worldStore.ts` |
+| Controllers / services | PascalCase class | `LODManager.ts`, `AgentService` |
+| Shared types/enums | PascalCase | `ScaleLevel`, `DistrictId` |
+| Constants | SCREAMING_SNAKE | `MAX_AGENTS_MVP` in `@ultron/shared` |
+| API routes | kebab-case, versioned | `/api/v1/navigation/:scale` |
+| WebSocket channels | colon-separated | `world:state`, `agent:dialogue` |
+
+## Architecture Boundaries
+
+- `apps/web` **must not** import from `apps/api`; use REST/WS via `apps/web/lib/`.
+- Both apps **must** import shared types from `@ultron/shared` — never duplicate enums or event shapes.
+- **Server is authoritative** for world entity state; client applies WS diffs and accepts corrections.
+- **3D layer** does not call REST directly — use hooks (`useWorldSync`, etc.) or stores.
+- **AI inference** only through backend `ModelRouter` / LangGraph — no direct LLM SDK calls in frontend.
+- **NestJS modules** expose services within their domain; cross-domain coordination via events or shared infra, not circular imports.
+- **Canonical numbers** live in `docs/canonical-numbers.md`; code constants must match or reference shared package exports.
+
+## Import Order
+
+1. External packages
+2. `@ultron/*` workspace packages
+3. Absolute app aliases (`@/components`, `@/stores`)
+4. Relative imports (same feature only)

@@ -1,0 +1,49 @@
+---
+description: Zustand client stores and server sync conventions
+globs: "**/stores/**,**/*Store.ts"
+alwaysApply: false
+---
+
+# State Management Standards
+
+## Client: Zustand Only
+
+Four stores — do not add a fifth without an ADR:
+
+| Store | Owns | Sync |
+|-------|------|------|
+| `worldStore` | Server entity data | WebSocket `world:state` diffs |
+| `navigationStore` | Scale, camera, selection, breadcrumbs | Session-local |
+| `agentStore` | Dialogues, streaming messages | WebSocket `agent:dialogue` |
+| `uiStore` | Panels, theme, preferences | LocalStorage for prefs |
+
+## Rules
+
+- **No Redux, Jotai, Recoil, or RTK Query** at MVP.
+- Stores are **plain Zustand** slices; no nested providers required.
+- **Server is authoritative** — optimistic UI must rollback on server rejection.
+- Initial world load: REST `GET /api/v1/navigation/:scale`; then WS subscription.
+- Cross-store updates via **custom hooks**, not direct store-to-store imports.
+
+## Selectors & Updates
+
+```typescript
+// ✅ GOOD — narrow subscription
+const scale = useNavigationStore(s => s.currentScale);
+
+// ❌ BAD — re-renders on any store change
+const store = useNavigationStore();
+```
+
+- Immutable updates for entity maps; use structural sharing or `immer` middleware if needed.
+- Dev-only: Zustand logging middleware — disabled in production.
+
+## Server State
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| Ephemeral | Redis | Agent runtime, WS subscriptions, inference budgets |
+| Persistent | PostgreSQL + Prisma | Entities, memories, governance, simulation history |
+
+- Redis pub/sub channels match `api-contracts.md` naming.
+- Soft deletes everywhere — queries must filter `deletedAt IS NULL`.

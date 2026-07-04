@@ -1,0 +1,60 @@
+stages:
+  - install
+  - lint
+  - typecheck
+  - test
+  - build
+
+variables:
+  PNPM_VERSION: '10.12.1'
+  NODE_VERSION: '20'
+
+default:
+  image: node:${NODE_VERSION}-bookworm
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@${PNPM_VERSION} --activate
+    - pnpm install --frozen-lockfile
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .pnpm-store
+    - node_modules/
+    - apps/*/node_modules/
+    - packages/*/node_modules/
+
+install:
+  stage: install
+  script:
+    - pnpm install --frozen-lockfile
+  artifacts:
+    paths:
+      - node_modules/
+      - apps/*/node_modules/
+      - packages/*/node_modules/
+    expire_in: 1 hour
+
+lint:
+  stage: lint
+  needs: [install]
+  script:
+    - pnpm lint
+
+typecheck:
+  stage: typecheck
+  needs: [install]
+  script:
+    - pnpm typecheck
+
+test:api:
+  stage: test
+  needs: [install]
+  script:
+    - pnpm --filter @ultron/api test
+
+build:
+  stage: build
+  needs: [lint, typecheck, test:api]
+  script:
+    - pnpm build

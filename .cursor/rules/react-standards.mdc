@@ -1,0 +1,43 @@
+---
+description: React 19 and Next.js App Router component patterns
+globs: "**/*.tsx"
+alwaysApply: false
+---
+
+# React Standards
+
+## Components
+
+- **Functional components only**; no class components.
+- **Colocate** component + hook + styles in the same feature folder when possible.
+- Split **container** (data/subscriptions) from **presentational** (pure UI) for panels and HUD.
+
+## Next.js App Router
+
+- **R3F / Canvas** must load via `next/dynamic` with `{ ssr: false }`.
+- **3D content is client-only** — never render `<Canvas>` in Server Components.
+- Page shell (layout, metadata, providers) in App Router; world runtime in client components.
+- MVP entry: `/world/megacity`; dynamic `[scale]` routes as fallback.
+
+## Styling
+
+- **Tailwind CSS** for all 2D UI; use `GlassPanel` and design tokens from `docs/design-system/`.
+- No CSS-in-JS (styled-components, Emotion) — conflicts with R3F and SSR strategy.
+- Fonts via `next/font`: Orbitron (headings), Inter (body), JetBrains Mono (code).
+
+## Hooks
+
+- Extract reusable logic into **`use*`** hooks in `apps/web/hooks/`.
+- Cross-store coordination via composite hooks (e.g., `useSelectEntity`) — not inline store coupling.
+- Subscribe with **narrow selectors**: `useWorldStore(s => s.entities[id])`, not whole-store subscriptions.
+
+## Performance
+
+- **`memo`** on heavy HUD/panel components that receive stable props.
+- **`useCallback` / `useMemo`** only when profiling shows benefit — not by default.
+- List keys must be **stable entity IDs**, never array index for dynamic world data.
+
+## Accessibility
+
+- Every interactive 3D action needs a **2D alternative** (keyboard nav, search, panel controls).
+- HUD controls: proper `aria-*`, focus management in dialogue panels.

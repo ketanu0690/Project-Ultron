@@ -1,0 +1,80 @@
+---
+description: Architecture lock, no-assumption rule, dependency governance, decision scorecard
+alwaysApply: true
+---
+
+# Governance
+
+## Architecture Lock
+
+If generated implementation conflicts with:
+
+- `docs/adr/*`
+- `docs/architecture/*`
+- `docs/design-system/*`
+
+**The documentation wins.** Change the code to match the docs — not the other way around.
+
+### ADR Protection
+
+- **Do not modify accepted ADRs automatically.** ADRs are immutable once accepted.
+- To change an accepted decision → create a proposal in `docs/proposals/` explaining why.
+- Proposals require human review before a new ADR supersedes an old one.
+- Never swap locked stack choices (e.g., Zustand → Redux, REST → GraphQL, Tailwind → CSS-in-JS) without an approved proposal + new ADR.
+
+### Conflict Resolution
+
+1. Stop implementation.
+2. File `docs/proposals/NNNN-short-title.md` using [`docs/proposals/TEMPLATE.md`](../../docs/proposals/TEMPLATE.md).
+3. Ask the user for approval before proceeding.
+
+---
+
+## No Assumption Rule
+
+If documentation is missing, ambiguous, or contradicts itself:
+
+1. **DO NOT** invent implementation details.
+2. **DO NOT** create hidden architecture (undocumented services, stores, APIs, or patterns).
+3. Add a **TODO** with a clear question in code or `docs/memory/active-work.md`.
+4. **Ask for clarification** from the user.
+5. **Generate a proposal document** in `docs/proposals/` if the gap affects architecture.
+
+Acceptable without a proposal: trivial local choices explicitly scoped in the active feature spec (e.g., variable names, internal helper structure).
+
+---
+
+## Dependency Rule
+
+Before introducing a **new npm dependency** (or replacing an existing one):
+
+1. **Explain why** existing dependencies cannot solve the problem.
+2. **Explain bundle impact** — estimate gzip size; check against `docs/performance/performance-budget.md`.
+3. **Explain maintenance cost** — license, update cadence, security surface, team familiarity.
+4. **Prefer the existing stack** — see ADRs and `docs/architecture/` before adding anything.
+
+New dependencies on the **critical path** (state, routing, rendering, ORM, AI SDK) require a proposal. Patch-level updates to existing deps do not.
+
+**Avoid dependency proliferation.** One library per concern.
+
+---
+
+## Technical Decision Evaluation
+
+Every **major decision** (new dependency, architectural pattern, data model change, cross-cutting refactor) must include this scorecard — in a proposal or ADR draft:
+
+| Dimension | Score (1–10) | Notes |
+|-----------|--------------|-------|
+| Complexity | | |
+| Performance | | |
+| Maintainability | | |
+| Scalability | | |
+| Developer Experience | | |
+
+**Tradeoffs**
+
+- **Pros**
+- **Cons**
+- **Risks**
+
+Use [`docs/proposals/TEMPLATE.md`](../../docs/proposals/TEMPLATE.md). Decisions with any dimension below **4** or with unresolved **High** risks require explicit user approval before implementation.

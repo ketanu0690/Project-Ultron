@@ -1,0 +1,44 @@
+---
+description: Unit, integration, and E2E testing conventions
+globs: "**/*.{test,spec}.{ts,tsx},**/test/**"
+alwaysApply: false
+---
+
+# Testing Standards
+
+## Stack
+
+| Layer | Tools |
+|-------|-------|
+| Backend unit/integration | Jest + Supertest + testcontainers |
+| Frontend unit | Vitest or Jest (match app config) |
+| Shared package | Vitest/Jest with pure function tests |
+| E2E (v1+) | Playwright for critical navigation flows |
+
+## What to Test
+
+- **Must test**: API DTO validation, governance policy evaluation, WS event serialization, shared type guards.
+- **Must test**: Zustand store reducers/sync handlers with mock WS payloads.
+- **Should test**: NestJS service business logic with mocked Prisma/Redis.
+- **Manual milestone**: 3D FPS and scene load (not CI-gated per ADR-0014).
+
+## Conventions
+
+```typescript
+// ✅ GOOD — descriptive, behavior-focused
+describe('NavigationService', () => {
+  it('returns entities filtered by scale level', async () => { ... });
+});
+```
+
+- File naming: `{module}.spec.ts` adjacent to source or in `test/` mirror.
+- **No snapshot tests** for 3D scenes or generated LLM output.
+- Mock external services (Redis, LLM, Prisma) — use testcontainers for integration, not unit.
+- Each test is **independent**; no shared mutable state between tests.
+- Coverage target: **≥ 80%** on `apps/api` services; pragmatic coverage on frontend stores/hooks.
+
+## Forbidden in Tests
+
+- Hitting production APIs or real LLM endpoints.
+- Committing secrets or `.env` values in test fixtures.
+- Testing implementation details (private method names) over observable behavior.
