@@ -19,29 +19,65 @@ The UI drives what gets built. Every feature starts from a screen, panel, or 3D 
 
 ### Alignment snapshot
 
-| Signal                           | UI-first?           | Notes                                                                                             |
-| -------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
-| Galaxy scroll journey            | ✅ Yes              | Built ahead of backend; mock HUD data                                                             |
-| Earth / Orbital Ring scenes      | ✅ Yes              | Earth HUD wired to `GET /earth/state`; Sun slider + Enter Brain City overlay removed (2026-06-17) |
-| Megacity → memory drill-down     | ✅ Yes              | UI chain drove Nexus navigation + memory APIs                                                     |
-| Dialogue + Memory panels         | ✅ Yes              | Phoenix/Nexus integrated from Talk / View Memory actions                                          |
-| Full domain REST modules         | ⚠️ Partial          | Many endpoints exist with **no UI consumer** (see audit in `ui-first-workflow.md`)                |
-| `shell-data.ts` static fallbacks | ❌ Backend-led debt | Hybrid static + API; migrate to `worldStore` only                                                 |
-| `AgentScene` single capsule      | ✅ Fixed            | 50 agents from `worldStore`; click selects `focusEntityId` (2026-06-16)                           |
+| Signal                           | UI-first?       | Notes                                                                                             |
+| -------------------------------- | --------------- | ------------------------------------------------------------------------------------------------- |
+| Galaxy scroll journey            | ✅ Yes          | Built ahead of backend; mock HUD data                                                             |
+| Earth / Orbital Ring scenes      | ✅ Yes          | Earth HUD wired to `GET /earth/state`; Sun slider + Enter Brain City overlay removed (2026-06-17) |
+| Megacity → memory drill-down     | ✅ Yes          | UI chain drove Nexus navigation + memory APIs                                                     |
+| Dialogue + Memory panels         | ✅ Yes          | Phoenix/Nexus integrated from Talk / View Memory actions                                          |
+| Full domain REST modules         | ⚠️ Partial      | Many endpoints exist with **no UI consumer** (see audit in `ui-first-workflow.md`)                |
+| `shell-data.ts` static fallbacks | ⚠️ Reduced (M2) | LOD footprints only; entity detail from worldStore/API                                            |
+| `AgentScene` single capsule      | ✅ Fixed        | 50 agents from `worldStore`; click selects `focusEntityId` (2026-06-16)                           |
 
 **Canonical user path (Galaxy-first)**: galaxy scroll → earth → megacity → district → building → room → agent → Talk → View Memory. **Phase 1 (cosmic entry polish)** in progress — see [`galaxy-first-roadmap.md`](./galaxy-first-roadmap.md).
 
 ---
 
-## Current Phase: M1 Foundation (Partially Complete)
+## Current Phase: M2 MVP Polish (In Progress)
 
-**Status**: 🟡 In Progress (~80%) — started 2026-06-14
+**Status**: 🟡 In progress (2026-07-04) — M1 closed same day
 
-M1 is **not complete**. Monorepo scaffold, shared contracts, health endpoint, frontend world engine, Prisma schema, seed data, and full Docker Compose (8 services) exist. CI/CD, Prometheus metrics endpoint, Grafana dashboards, and `packages/personality/` are still missing. M1 exit criteria (_clone → `docker compose up` → health checks pass_) is **partially met** — full stack boots; use `docker compose --env-file .env -f infra/docker-compose.yml up --build` and verify `GET /api/v1/health`.
+M2 closes documentation drift, static-fallback debt, and QA automation gaps before MVP ship.
+
+### M2 — Done (2026-07-04)
+
+- [x] Reconcile [`docs/current-state/scope.md`](../current-state/scope.md) and [`capabilities.md`](../current-state/capabilities.md) with M1-complete reality
+- [x] API ESLint strict-rule violations resolved (`tsconfig.spec.json` + test-file overrides in `eslint.config.mjs`)
+- [x] `shell-data.ts` — removed static district/building/room/agent stubs; LOD footprints + structural constants only
+- [x] Phoenix WS/SSE integration test — `apps/api/test/phoenix/dialogue.integration.spec.ts` (in-process Nest + mocked Prisma)
+- [x] Nexus API contract test — `apps/api/test/nexus/api-contract.nexus.spec.ts`
+- [x] Web store/breadcrumb Vitest — `apps/web/test/nexus/world-store.spec.ts`, `breadcrumb.spec.ts`
+- [x] GitLab CI — `test:web` job; non-blocking `e2e:galaxy-journey` (`@ci` megacity variant)
+- [x] Quality gates — `npm run lint`, `typecheck`, `test` (API 45/45, web 20/20), `build` all green
+
+### M2 — Remaining
+
+- [ ] Promote `e2e:galaxy-journey` from `allow_failure: true` to required gate after flake validation
+- [ ] Full galaxy-scroll Playwright E2E (non-`@ci`) — nightly/manual only
+- [ ] testcontainers / live-DB contract assertions (seed-invariants pattern retained)
+- [ ] Per-district `DistrictScene` variants; room-scene agent markers (galaxy-first P2 backlog)
+
+### Natural World Simulation (2026-07-05, parallel M2)
+
+- [x] Proposal [`0004-natural-world-simulation-libraries.md`](../proposals/0004-natural-world-simulation-libraries.md) + WebGPU hero scope [`0005-webgpu-hero-fluids.md`](../proposals/0005-webgpu-hero-fluids.md)
+- [x] Agent DB positions + `simulation` module (`AgentBehaviorService` 10s, `SimulationService` 60s, seeded `GovernanceService`)
+- [x] WS `world:state` / `agent:status` / `simulation:tick` / `governance:policy` broadcast
+- [x] Client `useWorldRealtime`, `AgentInterpolator`, `HologramAvatar`, `AgentMiniMap`, `GovernancePanel`
+- [x] `three-mesh-bvh` camera collision; `@react-three/rapier` in `RoomScene`; `WebGpuFluidScene` on Observation Deck
+- [ ] Run migration `20260705110000_agent_positions_and_simulation` + re-seed before live behavior tick
+- [ ] Mixamo glTF walk/idle clips (asset pipeline; shader + procedural mesh in place)
+
+---
+
+## Previous Phase: M1 Foundation (Complete)
+
+**Status**: ✅ Complete (2026-07-04) — started 2026-06-14
+
+M1 exit criteria (_clone → `docker compose up` → health checks pass_) is **met**. Use `docker compose --env-file .env -f infra/docker-compose.yml up --build` and verify `GET /api/v1/health` and `GET /api/v1/ready`.
 
 ### M1 — Done
 
-- [x] Monorepo scaffold (`apps/web`, `apps/api`, `packages/shared`) — npm workspace + Turbo + Husky
+- [x] Monorepo scaffold (`apps/web`, `apps/api`, `packages/shared`, `packages/personality`) — npm workspace + Turbo + Husky
 - [x] Next.js app with single R3F Canvas (`WorldCanvas`, `SceneRouter`)
 - [x] Shared types package (`ScaleLevel`, `Entity`, `DistrictId`, `EarthState`, WS events, camera constants)
 - [x] Shared entity DTOs (`District`, `Building`, `Room`, `Agent`, `AgentMemory`, `AgentRole`, `MemoryType`)
@@ -60,13 +96,16 @@ M1 is **not complete**. Monorepo scaffold, shared contracts, health endpoint, fr
 - [x] Migration applied locally — `20260614135948_init_mvp_entities`
 - [x] **MVP navigation drill-down chain** — megacity → district → building → room → agent → memory via 3D clicks + RightSidebar Enter/Talk/View Memory; LOD footprint stubs; breadcrumb memory append; Escape deselect verified
 - [x] **Scroll-driven galaxy journey** — default load `galaxy`; spiral galaxy visual (sboez/Galaxy MIT); wheel ladder galaxy → earth → megacity → 5 districts; `galaxy-to-earth` transition path
+- [x] CI/CD pipeline — `infra/.gitlab-ci.yml` (npm ci, lint, typecheck, test, build)
+- [x] Prometheus `/metrics` interceptor + HTTP histogram (`prom-client`)
+- [x] Grafana dashboards — `infra/grafana/provisioning/dashboards/ultron-api.json` (request rate, latency, 5xx, up, RSS)
+- [x] `packages/personality/` — `@ultron/personality` prompt templates wired into `ModelRouterService`
+- [x] pgvector `embedding` column on `agent_memories` — migration `20260704140000_add_pgvector_embedding` (1536 dims)
+- [x] Monorepo quality gates — `npm run lint`, `typecheck`, `test`, `build` all green
 
 ### M1 — Remaining
 
-- [x] CI/CD pipeline — `infra/.gitlab-ci.yml` (lint, typecheck, test, build); API lint job still red on strict ESLint rules
-- [x] Prometheus `/metrics` interceptor + HTTP histogram (`prom-client`); Grafana scrape/dashboard JSON still pending
-- [ ] `packages/personality/` package (ADR-0012)
-- [ ] pgvector `embedding` column on `agent_memories` (deferred until semantic search / `EmbeddingService`)
+_None — M1 closed 2026-07-04. Next: M2 MVP polish (see Galaxy-first backlog below)._
 
 ---
 
@@ -178,7 +217,7 @@ MVP exit criterion (_galaxy journey → megacity → Reasoning → Planning Towe
 1. ~~**Phase 1 — Cosmic entry polish (P0)**~~ — **In progress** (2026-06-16): HUD simulated labels, scroll hints, GalaxyHUD mount.
 2. ~~**Agent swarm UI (P0)**~~ — ✅ `AgentScene` reads `worldStore.agents` (2026-06-16).
 3. ~~**E2E automation (P0)**~~ — ✅ Playwright primary + `@ci` megacity variant (2026-06-16).
-4. **Static fallback removal (P1)** — shrink `shell-data.ts`; navigation bundle is source of truth.
+4. ~~**Static fallback removal (P1)**~~ — ✅ LOD-only fallbacks in `shell-data.ts` (2026-07-04 M2).
 5. **Earth HUD worksheet → v1 API (P1)** — only after fields locked in UI-first worksheet.
 6. ~~**ADR-0016 review (P2)**~~ — ✅ Approved 2026-06-16 ([ADR-0016](../adr/0016-galaxy-first-entry-and-scale-phasing.md)).
 
@@ -198,8 +237,8 @@ MVP exit criterion (_galaxy journey → megacity → Reasoning → Planning Towe
 - [x] Dialogue agent ref: slug (breadcrumbs/focus) or UUID (Talk when `worldStore` hydrated); API accepts both
 - [x] `GET /ready`, navigation by slug, memory by slug verified against rebuilt Docker stack
 - [x] `npm run typecheck` — all packages pass; `npm test` — 30/30 pass
-- [ ] `npm run lint` — API package has 33 pre-existing ESLint strict-rule violations (not integration blockers)
-- [ ] E2E Playwright automation — ✅ specs in `apps/web/e2e/`; CI job wiring pending
+- [x] `npm run lint` — all packages pass (API spec overrides + `tsconfig.spec.json`, 2026-07-04 M2)
+- [x] E2E Playwright automation — specs in `apps/web/e2e/`; CI `e2e:galaxy-journey` job wired (non-blocking, 2026-07-04 M2)
 
 **Fixes applied at integration**
 
@@ -220,17 +259,34 @@ MVP exit criterion (_galaxy journey → megacity → Reasoning → Planning Towe
 
 - ~~Domain REST modules must consume Prisma seed data before frontend can hydrate `worldStore`~~ — done (Nexus)
 - ~~UI shell must land before dialogue UX is testable end-to-end~~ — done
-- API ESLint strict violations block `npm run lint` CI gate (follow-up, not runtime)
+- API ESLint strict violations ~~block `npm run lint` CI gate~~ — resolved 2026-07-04 M2
 
 ### Notes
 
 - `worldStore`, `agentStore`, `uiStore` wired to REST + WS (Nexus + Phoenix 2026-06-16)
-- pgvector deferred; add migration before `POST /agents/:id/memory/search`
+- pgvector column + `POST /agents/:id/memory/search` shipped — ADR-0017 Phase 1 (2026-07-04)
 - Galaxy-first entry **approved** — [`docs/proposals/0001-ui-first-mvp-entry-and-cosmic-stack.md`](../proposals/0001-ui-first-mvp-entry-and-cosmic-stack.md); formalized in [ADR-0016](../adr/0016-galaxy-first-entry-and-scale-phasing.md)
 
 ---
 
-## Phoenix Dev — Realtime & Agent Dialogue (2026-06-16)
+## Living World — ADR-0017 Phase 1 (In Progress)
+
+**Status**: 🟡 In progress (2026-07-04) — [Proposal 0003](../proposals/0003-autonomous-living-world.md) approved → [ADR-0017](../adr/0017-autonomous-living-world.md)
+
+**MVP unchanged** per ADR-0013 — no simulation tick, no background autonomy.
+
+### Phase 1 scope
+
+- [x] Real LangGraph dialogue graph (`retrieveMemory` → `storeMemory`; respond streamed via ModelRouter)
+- [x] `EmbeddingService` + pgvector semantic search
+- [x] `POST /api/v1/agents/:id/memory/search`
+- [x] Episodic memory write after completed dialogue turn
+- [x] Reflection job (every 10 episodic memories → semantic summary)
+- [x] LangGraph checkpoint tables migration
+- [ ] Integration tests for memory search + dialogue memory write
+- [ ] Phase 2: agent-behavior tick + server-authoritative movement
+
+---
 
 **Status**: ✅ Complete — integrated with Nexus (2026-06-16)
 
@@ -257,8 +313,8 @@ MVP exit criterion (_galaxy journey → megacity → Reasoning → Planning Towe
 
 - [x] Run `npm install` at repo root (WS deps added to `@ultron/api`)
 - [x] Nexus: wire RightSidebar Talk → `openDialogue(agentId)` — `getAgentUuid` + `openDialogue` (2026-06-16)
-- [ ] Integration test: live WS handshake against running Nest app
-- [ ] E2E Playwright — open dialogue, send, assert streamed text
+- [x] Integration test: in-process Nest WS handshake — `dialogue.integration.spec.ts` (2026-07-04 M2)
+- [ ] E2E Playwright — open dialogue, send, assert streamed text (panel visibility covered by `@ci` spec)
 
 ### Nexus dependency
 
@@ -268,16 +324,16 @@ MVP exit criterion (_galaxy journey → megacity → Reasoning → Planning Towe
 
 ## Phoenix QA — Realtime & Agent Dialogue (2026-06-16)
 
-**Status**: 🟡 Scenarios ready — core Dev verified; integration checkpoint passed (2026-06-16); E2E automation pending
+**Status**: 🟡 Scenarios ready — core Dev verified; integration + contract tests landed (2026-07-04 M2)
 
 **Deliverables**
 
 - [x] Phase 1 requirements read (ADR-0005, ADR-0015, api-contracts, agent-system, ui-shell Dialogue)
 - [x] Test pyramid + CI mock strategy (`docs/qa/phoenix-scenarios.md`)
 - [x] Gherkin scenarios (streaming, SSE fallback, warning, WS lifecycle, errors, a11y)
-- [x] Unit tests — `apps/api/test/phoenix/` (ws envelope, ModelRouter stub, DialogueService) — **files exist; Jest config G9 prevents default run**
-- [ ] Integration tests — `apps/api/test/phoenix/integration/`
-- [ ] E2E — `apps/web/e2e/phoenix/` dialogue send (Playwright installed; galaxy-journey covers Talk open)
+- [x] Unit tests — `apps/api/test/phoenix/` — runs in default `npm test`
+- [x] Integration tests — `apps/api/test/phoenix/dialogue.integration.spec.ts` (WS + SSE, in-process)
+- [ ] E2E — `apps/web/e2e/` dialogue send/assert streamed text (galaxy-journey covers Talk open + `@ci` path)
 
 **Blockers (resolved by Phoenix Dev 2026-06-16)**
 
@@ -298,7 +354,7 @@ MVP exit criterion (_galaxy journey → megacity → Reasoning → Planning Towe
 
 ## Nexus QA Sprint (2026-06-16)
 
-**Status**: 🟡 In Progress — scenarios + seed invariant tests  
+**Status**: 🟡 In Progress — scenarios + seed invariant + contract tests  
 **Branch**: `feat/nexus/qa-shell-integration` (when automation lands)
 
 ### Scope
@@ -317,13 +373,16 @@ Test World Data & UI Shell Integration per `docs/qa/nexus-scenarios.md`:
 
 ### Remaining
 
-- [ ] Phase 2 decisions locked (Postgres testcontainers, functional-only visual, axe in CI)
-- [ ] `api-contract.nexus.spec.ts` — Supertest against full Nest app + testcontainers
-- [ ] Jest `roots` update in `apps/api/package.json` to pick up `test/nexus/`
-- [ ] `infra/.gitlab-ci.yml` — `test:api:nexus` job (Nexus Dev)
-- [ ] Playwright `e2e/nexus/` — ✅ `galaxy-journey.spec.ts` covers shell + View Memory (2026-06-16)
-- [ ] Vitest + `*.nexus.spec.ts` for `useBreadcrumbSync`, `worldStore` sync
-- [ ] `GET /ready` endpoint (Nexus Dev) — unblock readiness scenarios
+- [ ] Phase 2 decisions locked (Postgres testcontainers for live seed contract; functional-only visual; axe in CI)
+- [ ] `useBreadcrumbSync` hook integration test (store tests cover breadcrumb builder + worldStore)
+
+### M2 automation landed (2026-07-04)
+
+- [x] `api-contract.nexus.spec.ts` — in-process Nest + mocked Prisma
+- [x] Jest `roots` in `apps/api/package.json` picks up `test/nexus/` and `test/phoenix/`
+- [x] `infra/.gitlab-ci.yml` — `test:api`, `test:web`, `e2e:galaxy-journey` (allow_failure)
+- [x] Playwright `e2e/galaxy-journey.spec.ts` — shell + View Memory (`@ci` megacity variant)
+- [x] Vitest `test/nexus/*.spec.ts` for `worldStore` + `buildBreadcrumbs`
 
 ### Phase 2 QA decisions (recommended)
 
@@ -379,7 +438,7 @@ Test World Data & UI Shell Integration per `docs/qa/nexus-scenarios.md`:
 ### Remaining (follow-up)
 
 - [x] E2E with live API + Docker Compose — manual API verification done (2026-06-16 integration checkpoint)
-- [ ] Web Vitest/Playwright automation — Playwright E2E landed; Vitest hook tests still pending
+- [ ] Web Vitest/Playwright automation — Playwright E2E + Vitest store/breadcrumb tests landed (2026-07-04 M2); `useBreadcrumbSync` hook integration test still deferred
 - [x] Monorepo `npm run typecheck` — passes after integration fixes (2026-06-16)
 
 ### Phoenix integration point

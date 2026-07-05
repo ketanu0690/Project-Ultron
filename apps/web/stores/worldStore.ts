@@ -5,9 +5,12 @@
 import type {
   Agent,
   AgentMemory,
+  AgentStatus,
   Building,
   District,
+  GovernancePolicy,
   Room,
+  WorldStateVariables,
 } from '@ultron/shared';
 import { create } from 'zustand';
 
@@ -42,6 +45,9 @@ interface WorldState {
   memoriesByAgentSlug: Record<string, AgentMemory[]>;
   hierarchy: HierarchyNode[];
   aggregates: WorldAggregateMetrics;
+  simulationTickId: number;
+  worldStateVariables: WorldStateVariables | null;
+  governancePolicies: GovernancePolicy[];
   isHydrated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -60,6 +66,14 @@ interface WorldActions {
   setAgentMemories: (agentSlug: string, memories: AgentMemory[]) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
+  applyAgentServerUpdate: (payload: {
+    agentId: string;
+    status: AgentStatus;
+    position?: [number, number, number];
+    rotationY?: number;
+  }) => void;
+  setSimulationState: (variables: WorldStateVariables, tickId: number) => void;
+  setGovernancePolicies: (policies: GovernancePolicy[]) => void;
   getEntityDetail: (focusId: string | null) => EntityDetail | null;
   getAgentUuid: (agentSlug: string) => string | null;
 }
@@ -91,6 +105,9 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   memoriesByAgentSlug: {},
   hierarchy: [],
   aggregates: EMPTY_AGGREGATES,
+  simulationTickId: 0,
+  worldStateVariables: null,
+  governancePolicies: [],
   isHydrated: false,
   isLoading: false,
   error: null,
@@ -144,6 +161,45 @@ export const useWorldStore = create<WorldStore>((set, get) => ({
   },
   setError: (error) => {
     set({ error, isLoading: false });
+  },
+  applyAgentServerUpdate: (payload) => {
+    set((state) => {
+      const slugEntry = Object.entries(state.agentUuidBySlug).find(
+        ([, uuid]) => uuid === payload.agentId,
+      );
+      if (!slugEntry) {
+        return state;
+      }
+      const [slug] = slugEntry;
+      const agent = state.agents[slug];
+      if (!agent) {
+        return state;
+      }
+
+      const nextAgent: Agent = {
+        ...agent,
+        status: payload.status,
+        position: payload.position
+          ? {
+              x: payload.position[0],
+              y: payload.position[1],
+              z: payload.position[2],
+            }
+          : agent.position,
+        rotationY: payload.rotationY ?? agent.rotationY,
+      };
+
+      return {
+        agents: { ...state.agents, [slug]: nextAgent },
+        version: state.version + 1,
+      };
+    });
+  },
+  setSimulationState: (variables, tickId) => {
+    set({ worldStateVariables: variables, simulationTickId: tickId });
+  },
+  setGovernancePolicies: (policies) => {
+    set({ governancePolicies: policies });
   },
   getEntityDetail: (focusId) => {
     if (!focusId) {

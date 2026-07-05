@@ -5,8 +5,11 @@ import { DISTRICT_COLORS } from '@ultron/shared';
 import { useState } from 'react';
 
 import { EntityNode } from '@/components/world/EntityNode';
+import { WebGpuFluidScene } from '@/scenes/simulation-dome/WebGpuFluidScene';
 import { getScaleTransitionController } from '@/lib/scale-transition-instance';
 import { useNavigationStore } from '@/stores/navigationStore';
+
+import { RoomPhysics } from './RoomPhysics';
 
 interface RoomConfig {
   readonly entityId: string;
@@ -97,10 +100,25 @@ function RoomZone({ room }: RoomZoneProps): React.JSX.Element {
         distanceFactor={12}
         style={{ pointerEvents: 'none' }}
       >
-        <span className="bg-void-black/80 text-text-primary whitespace-nowrap rounded px-2 py-1 text-xs">
+        <span className="bg-void-black/80 text-text-primary rounded px-2 py-1 text-xs whitespace-nowrap">
           {room.label}
         </span>
       </Html>
+
+      {room.entityId === 'room-observation-deck' ? (
+        <Html
+          position={[
+            room.position[0],
+            room.position[1] + room.size[1] / 2 + 2,
+            room.position[2],
+          ]}
+          center
+          distanceFactor={14}
+          style={{ pointerEvents: 'none' }}
+        >
+          <WebGpuFluidScene className="rounded border border-cyan-500/30" />
+        </Html>
+      ) : null}
 
       {isEnterable && (hovered || isFocused) ? (
         <Html
@@ -113,7 +131,7 @@ function RoomZone({ room }: RoomZoneProps): React.JSX.Element {
           distanceFactor={12}
           style={{ pointerEvents: 'none' }}
         >
-          <div className="border-signal-cyan/40 bg-void-black/90 whitespace-nowrap rounded border px-3 py-2 text-center backdrop-blur-md">
+          <div className="border-signal-cyan/40 bg-void-black/90 rounded border px-3 py-2 text-center whitespace-nowrap backdrop-blur-md">
             <p className="text-signal-cyan text-xs">
               Click to meet Analyst Sigma-7
             </p>
@@ -135,6 +153,8 @@ export default function RoomScene(): React.JSX.Element {
       {ROOMS.map((room) => (
         <RoomZone key={room.entityId} room={room} />
       ))}
+
+      <RoomPhysics roomSize={[20, 8, 20]} roomPosition={[-25, 4, 0]} />
     </group>
   );
 }

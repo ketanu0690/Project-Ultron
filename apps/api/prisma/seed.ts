@@ -313,6 +313,11 @@ async function seedAgents(
 ): Promise<Map<string, string>> {
   const idBySlug = new Map<string, string>();
   let plannerIndex = 0;
+  let agentIndex = 0;
+  const totalAgents = Object.values(REASONING_AGENT_ROLE_COUNTS).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
 
   for (const role of Object.keys(REASONING_AGENT_ROLE_COUNTS) as AgentRole[]) {
     const count = REASONING_AGENT_ROLE_COUNTS[role];
@@ -336,6 +341,15 @@ async function seedAgents(
         plannerIndex += 1;
       }
 
+      const spacing = 2.8;
+      const cols = Math.ceil(Math.sqrt(totalAgents));
+      const row = Math.floor(agentIndex / cols);
+      const col = agentIndex % cols;
+      const rows = Math.ceil(totalAgents / cols);
+      const positionX = col * spacing - ((cols - 1) * spacing) / 2;
+      const positionZ = row * spacing - ((rows - 1) * spacing) / 2;
+      agentIndex += 1;
+
       const record = await prisma.agent.upsert({
         where: { slug },
         create: {
@@ -348,6 +362,10 @@ async function seedAgents(
           model: AGENT_MODELS[role],
           version: '1.0.0',
           status: 'idle' satisfies AgentStatus,
+          positionX,
+          positionY: 0,
+          positionZ,
+          rotationY: 0,
           capabilities: [],
         },
         update: {
@@ -357,6 +375,9 @@ async function seedAgents(
           homeBuildingId: buildingId,
           homeRoomId,
           model: AGENT_MODELS[role],
+          positionX,
+          positionY: 0,
+          positionZ,
         },
       });
       idBySlug.set(slug, record.id);
@@ -550,6 +571,24 @@ async function main(): Promise<void> {
   const roomIds = await seedRooms(planningTowerId);
   const agentIds = await seedAgents(reasoningDistrictId, buildingIds, roomIds);
   await seedMemories(agentIds);
+
+  await prisma.worldState.upsert({
+    where: { id: 'current' },
+    create: {
+      id: 'current',
+      variables: {
+        planetaryHealth: 78,
+        cityProsperity: 94,
+        agentMorale: 82,
+        defenseReadiness: 71,
+        knowledgeIndex: 88,
+        innovationRate: 76,
+      },
+      tickCount: 0,
+    },
+    update: {},
+  });
+
   await printVerification();
 }
 

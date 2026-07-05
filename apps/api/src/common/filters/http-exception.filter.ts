@@ -44,11 +44,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   private extractFieldErrors(
     response: string | object,
   ): ApiError['errors'] | undefined {
-    if (
-      typeof response !== 'object' ||
-      response === null ||
-      !('message' in response)
-    ) {
+    if (typeof response !== 'object' || !('message' in response)) {
       return undefined;
     }
 

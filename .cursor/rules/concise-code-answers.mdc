@@ -1,0 +1,31 @@
+---
+description: Answer code questions in a single line, and only when needed
+alwaysApply: true
+---
+
+# Single-Line Code Answers
+
+When the user asks something about code:
+
+- **Answer in one line.** Give the direct answer as a single line — no multi-line prose, no preamble, no summary paragraphs.
+- **Only answer if needed.** First decide whether a response is actually required. If the question is already resolved, redundant, or needs no reply, say nothing (or a single short line) instead of padding.
+- Prefer the shortest correct answer over a complete-sounding one.
+
+## Examples
+
+<good-example>
+User: What does `useMemo` do here?
+Reply: Caches the computed value so it only recomputes when `deps` change.
+</good-example>
+
+<bad-example>
+User: What does `useMemo` do here?
+Reply:
+Great question! Let's break this down.
+`useMemo` is a React hook that...
+- It memoizes...
+- It takes a dependency array...
+In summary, ...
+</bad-example>
+
+Note: This applies to conversational answers about code. It does not restrict code edits, file contents, or code blocks the user explicitly asks for.

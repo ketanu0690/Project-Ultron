@@ -17,6 +17,7 @@ interface AgentState {
   messages: DialogueMessage[];
   isStreaming: boolean;
   connectionStatus: 'idle' | 'connecting' | 'connected' | 'error';
+  thinkingAgentIds: string[];
   error: string | null;
 }
 
@@ -30,6 +31,7 @@ interface AgentActions {
   setStreaming: (isStreaming: boolean) => void;
   setConnectionStatus: (status: AgentState['connectionStatus']) => void;
   setError: (error: string | null) => void;
+  setAgentThinking: (agentId: string) => void;
   clearDialogue: () => void;
 }
 
@@ -48,6 +50,7 @@ export const useAgentStore = create<AgentStore>((set) => ({
   messages: [],
   isStreaming: false,
   connectionStatus: 'idle',
+  thinkingAgentIds: [],
   error: null,
 
   setActiveDialogueId: (id) => {
@@ -108,6 +111,19 @@ export const useAgentStore = create<AgentStore>((set) => ({
 
   setError: (error) => {
     set({ error });
+  },
+
+  setAgentThinking: (agentId) => {
+    set((state) => ({
+      thinkingAgentIds: state.thinkingAgentIds.includes(agentId)
+        ? state.thinkingAgentIds
+        : [...state.thinkingAgentIds, agentId],
+    }));
+    setTimeout(() => {
+      set((state) => ({
+        thinkingAgentIds: state.thinkingAgentIds.filter((id) => id !== agentId),
+      }));
+    }, 4000);
   },
 
   clearDialogue: () => {

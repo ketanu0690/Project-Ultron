@@ -27,7 +27,7 @@ export class AgentsDialogueController {
     @Body() body: AgentDialogueBodyDto,
     @Headers('accept') accept: string | undefined,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<ApiResponse<{ sessionId: string; agentId: string }> | void> {
+  ): Promise<ApiResponse<{ sessionId: string; agentId: string }> | undefined> {
     const request = {
       agentId: params.id,
       message: body.message,

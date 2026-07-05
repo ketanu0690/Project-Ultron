@@ -298,8 +298,8 @@ function generateProceduralSystems(count: number, seed: number): StarSystem[] {
     const yJitter = (nextRandom() - 0.5) * r * 0.05;
 
     systems.push({
-      id: `star-proc-${catalogId}`,
-      name: `${namePrefix} ${catalogId}`,
+      id: `star-proc-${String(catalogId)}`,
+      name: `${namePrefix} ${String(catalogId)}`,
       position: galacticPosition(radiusLy, angleRad, yJitter),
       starType,
       civilizationStatus,

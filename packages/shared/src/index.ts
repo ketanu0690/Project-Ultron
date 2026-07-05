@@ -29,6 +29,13 @@ export {
 } from './types/agent';
 
 export type {
+  PolicyDomain,
+  GovernancePolicy,
+  SimulationEventRecord,
+} from './types/governance';
+export { POLICY_DOMAINS } from './types/governance';
+
+export type {
   BuildingState,
   BuildingDetailLevel,
   ReasoningBuildingType,
@@ -48,6 +55,8 @@ export type {
   MemoryType,
   AgentMemoryMetadata,
   AgentMemory,
+  MemorySearchRequest,
+  MemorySearchResult,
 } from './types/memory';
 export { MEMORY_TYPES } from './types/memory';
 
@@ -91,8 +100,12 @@ export type {
   WorldStatePayload,
   WorldSnapshotPayload,
   AgentStatusPayload,
+  AgentConversationPayload,
   AgentDialogueServerPayload,
   BuildingMetricsPayload,
+  SimulationTickPayload,
+  SimulationEventPayload,
+  GovernancePolicyPayload,
   PongPayload,
   ClientWsEvent,
   ServerWsEvent,

@@ -1,4 +1,4 @@
-import type { CameraState, ScaleLevel } from '@ultron/shared';
+import type { ScaleLevel } from '@ultron/shared';
 
 import { hasFreeCameraControl } from '@/lib/camera-interaction';
 import {

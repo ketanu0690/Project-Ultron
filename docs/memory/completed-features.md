@@ -23,9 +23,22 @@
 
 ---
 
-## M1 Foundation (Partial — June 2026)
+## M1 Foundation (Complete — July 2026)
 
-These items pass M1 deliverables but M1 as a whole is **not complete** (~55%). Full Docker Compose, CI, and Prometheus remain.
+M1 milestone closed 2026-07-04. All exit criteria met.
+
+| Feature                   | Completed  | Notes                                                                         |
+| ------------------------- | ---------- | ----------------------------------------------------------------------------- |
+| Monorepo scaffold         | 2026-06-14 | npm workspace, Turbo, Husky, lint-staged, commitlint                          |
+| `packages/personality`    | 2026-07-04 | `@ultron/personality` — identity/purpose templates + `buildAgentSystemPrompt` |
+| Grafana dashboards        | 2026-07-04 | Provisioned `ultron-api.json` — HTTP metrics + process panels                 |
+| CI/CD (GitLab)            | 2026-07-04 | `infra/.gitlab-ci.yml` — npm ci, lint, typecheck, test, build                 |
+| pgvector embedding column | 2026-07-04 | `agent_memories.embedding vector(1536)` + IVFFlat index                       |
+| Quality gates green       | 2026-07-04 | `npm run lint`, `typecheck`, `test`, `build` pass monorepo-wide               |
+
+### M1 Foundation (Partial — June 2026, superseded)
+
+These items pass M1 deliverables; see complete table above for July 2026 closeout.
 
 | Feature                          | Completed  | Notes                                                                  |
 | -------------------------------- | ---------- | ---------------------------------------------------------------------- |

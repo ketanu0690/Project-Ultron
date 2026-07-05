@@ -9,6 +9,7 @@ import { HealthModule } from './modules/health/health.module';
 import { MemoryModule } from './modules/memory/memory.module';
 import { NavigationModule } from './modules/navigation/navigation.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
+import { SimulationModule } from './modules/simulation/simulation.module';
 import { StarSystemsModule } from './modules/star-systems/star-systems.module';
 import { WorldModule } from './modules/world/world.module';
 
@@ -25,6 +26,7 @@ import { WorldModule } from './modules/world/world.module';
     WorldModule,
     StarSystemsModule,
     RealtimeModule,
+    SimulationModule,
   ],
 })
 export class AppModule {}

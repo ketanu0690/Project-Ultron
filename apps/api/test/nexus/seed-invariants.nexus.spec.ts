@@ -52,9 +52,12 @@ describe('Seed invariants (Nexus QA)', () => {
       where: { slug: 'reasoning', ...NOT_DELETED },
     });
     expect(reasoning).not.toBeNull();
+    if (!reasoning) {
+      return;
+    }
 
     const count = await prisma.building.count({
-      where: { districtId: reasoning!.id, ...NOT_DELETED },
+      where: { districtId: reasoning.id, ...NOT_DELETED },
     });
     expect(count).toBe(10);
   });
@@ -67,9 +70,12 @@ describe('Seed invariants (Nexus QA)', () => {
       where: { slug: 'building-planning-tower', ...NOT_DELETED },
     });
     expect(tower).not.toBeNull();
+    if (!tower) {
+      return;
+    }
 
     const count = await prisma.room.count({
-      where: { buildingId: tower!.id, ...NOT_DELETED },
+      where: { buildingId: tower.id, ...NOT_DELETED },
     });
     expect(count).toBe(3);
   });
@@ -82,9 +88,12 @@ describe('Seed invariants (Nexus QA)', () => {
       where: { slug: 'reasoning', ...NOT_DELETED },
     });
     expect(reasoning).not.toBeNull();
+    if (!reasoning) {
+      return;
+    }
 
     const agents = await prisma.agent.findMany({
-      where: { homeDistrictId: reasoning!.id, ...NOT_DELETED },
+      where: { homeDistrictId: reasoning.id, ...NOT_DELETED },
       select: { role: true },
     });
     expect(agents).toHaveLength(50);

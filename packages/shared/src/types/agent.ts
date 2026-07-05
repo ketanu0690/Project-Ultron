@@ -46,6 +46,8 @@ export interface Agent {
   model: string;
   version: string;
   status: AgentStatus;
+  position: { x: number; y: number; z: number };
+  rotationY: number;
   capabilities: string[];
   createdAt: string;
   updatedAt: string;

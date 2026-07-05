@@ -2,7 +2,7 @@
 
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
-import type { Mesh, Texture } from 'three';
+import type { Mesh } from 'three';
 
 import { useIsMobileEarth } from '@/hooks/useIsMobileEarth';
 import { EARTH_RADIUS_M } from '@/scenes/earth/earth.mock';

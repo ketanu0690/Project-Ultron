@@ -24,3 +24,18 @@ export interface AgentMemory {
   expiresAt?: string | null;
   deletedAt?: string | null;
 }
+
+export interface MemorySearchRequest {
+  query: string;
+  limit?: number;
+}
+
+export interface MemorySearchResult {
+  id: string;
+  agentId: string;
+  type: MemoryType;
+  content: string;
+  similarity: number;
+  metadata: AgentMemoryMetadata;
+  createdAt: string;
+}

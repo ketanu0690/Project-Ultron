@@ -72,8 +72,9 @@ export function VolumetricCloudField(): React.JSX.Element {
   const cloudField = useMemo(() => createCloudField(), []);
 
   useFrame(({ clock }) => {
-    const material = cloudField.material;
-    material.uniforms.uTime.value = clock.getElapsedTime();
+    // R3F per-frame uniform mutation — intentional Three.js imperative API.
+    // eslint-disable-next-line react-hooks/immutability -- ShaderMaterial.uniforms
+    cloudField.material.uniforms.uTime.value = clock.getElapsedTime();
   });
 
   return (

@@ -6,7 +6,11 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import type { AgentDialogueClientPayload, AgentStatus } from '@ultron/shared';
+import type {
+  AgentDialogueClientPayload,
+  NavSubscribePayload,
+  ScaleLevel,
+} from '@ultron/shared';
 import type { Server, WebSocket } from 'ws';
 
 import { DialogueService } from './dialogue.service';
@@ -18,6 +22,7 @@ import {
 
 interface ClientMeta {
   id: string;
+  subscribedScale?: ScaleLevel;
 }
 
 @WebSocketGateway({ path: '/ws' })
@@ -36,23 +41,32 @@ export class WorldGateway
   afterInit(server: Server): void {
     server.on('connection', (client: WebSocket) => {
       client.on('message', (data: Buffer | ArrayBuffer | Buffer[]) => {
-        const raw = Buffer.isBuffer(data)
-          ? data.toString('utf8')
-          : String(data);
-        this.handleRawMessage(client, raw);
+        this.handleRawMessage(client, this.decodeWsMessage(data));
       });
     });
   }
 
   handleConnection(client: WebSocket): void {
     this.clientCounter += 1;
-    this.clientMeta.set(client, { id: `client-${this.clientCounter}` });
-    this.logger.debug(`WS client connected (${this.clientCounter})`);
+    this.clientMeta.set(client, { id: `client-${String(this.clientCounter)}` });
+    this.logger.debug(`WS client connected (${String(this.clientCounter)})`);
   }
 
   handleDisconnect(client: WebSocket): void {
     this.clientMeta.delete(client);
     this.logger.debug('WS client disconnected');
+  }
+
+  broadcast(event: string, payload: unknown): void {
+    if (!this.server) {
+      return;
+    }
+    const message = serializeWsMessage(createWsMessage(event, payload));
+    for (const client of this.server.clients) {
+      if (client.readyState === client.OPEN) {
+        client.send(message);
+      }
+    }
   }
 
   private handleRawMessage(client: WebSocket, raw: string): void {
@@ -65,11 +79,19 @@ export class WorldGateway
       case 'ping':
         this.send(client, 'pong', { serverTime: new Date().toISOString() });
         break;
+      case 'nav:subscribe':
+        if (this.isNavSubscribePayload(message.payload)) {
+          const meta = this.clientMeta.get(client);
+          if (meta) {
+            meta.subscribedScale = message.payload.scale;
+          }
+          this.send(client, 'nav:ack', { tick: 0 });
+        }
+        break;
       case 'agent:dialogue':
-        void this.handleAgentDialogue(
-          client,
-          message.payload as AgentDialogueClientPayload,
-        );
+        if (this.isDialoguePayload(message.payload)) {
+          void this.handleAgentDialogue(client, message.payload);
+        }
         break;
       default:
         break;
@@ -86,9 +108,9 @@ export class WorldGateway
     try {
       this.dialogueService.checkWsRateLimit(clientKey);
 
-      this.send(client, 'agent:status', {
+      this.broadcast('agent:status', {
         agentId: payload.agentId,
-        status: 'thinking' as AgentStatus,
+        status: 'thinking',
       });
 
       await this.dialogueService.streamDialogue(
@@ -102,9 +124,9 @@ export class WorldGateway
         },
       );
 
-      this.send(client, 'agent:status', {
+      this.broadcast('agent:status', {
         agentId: payload.agentId,
-        status: 'idle' as AgentStatus,
+        status: 'idle',
       });
     } catch (error) {
       const message =
@@ -115,17 +137,50 @@ export class WorldGateway
         error: message,
         done: true,
       });
-      this.send(client, 'agent:status', {
+      this.broadcast('agent:status', {
         agentId: payload.agentId,
-        status: 'idle' as AgentStatus,
+        status: 'idle',
       });
     }
   }
 
-  private send<T>(
+  private decodeWsMessage(data: Buffer | ArrayBuffer | Buffer[]): string {
+    if (Buffer.isBuffer(data)) {
+      return data.toString('utf8');
+    }
+    if (Array.isArray(data)) {
+      return Buffer.concat(data).toString('utf8');
+    }
+    return Buffer.from(data).toString('utf8');
+  }
+
+  private isDialoguePayload(
+    payload: unknown,
+  ): payload is AgentDialogueClientPayload {
+    if (typeof payload !== 'object' || payload === null) {
+      return false;
+    }
+    const candidate = payload as AgentDialogueClientPayload;
+    return (
+      typeof candidate.agentId === 'string' &&
+      typeof candidate.message === 'string'
+    );
+  }
+
+  private isNavSubscribePayload(
+    payload: unknown,
+  ): payload is NavSubscribePayload {
+    if (typeof payload !== 'object' || payload === null) {
+      return false;
+    }
+    const candidate = payload as NavSubscribePayload;
+    return typeof candidate.scale === 'string';
+  }
+
+  private send(
     client: WebSocket,
     event: string,
-    payload: T,
+    payload: unknown,
     requestId?: string,
   ): void {
     if (client.readyState !== client.OPEN) {

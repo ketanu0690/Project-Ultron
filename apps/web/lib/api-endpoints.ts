@@ -6,9 +6,11 @@ import type {
   District,
   DistrictId,
   EarthState,
+  GovernancePolicy,
   Room,
   ScaleLevel,
   StarSystemsBundle,
+  WorldStateVariables,
 } from '@ultron/shared';
 import { API_BASE_PATH } from '@ultron/shared';
 
@@ -102,4 +104,16 @@ export async function fetchStarSystems(): Promise<
   ApiResponse<StarSystemsBundle>
 > {
   return apiFetch(`${API_BASE_PATH}/star-systems`);
+}
+
+export async function fetchGovernancePolicies(): Promise<
+  ApiResponse<GovernancePolicy[]>
+> {
+  return apiFetch(`${API_BASE_PATH}/governance/policies`);
+}
+
+export async function fetchSimulationState(): Promise<
+  ApiResponse<{ tickCount: number; variables: WorldStateVariables }>
+> {
+  return apiFetch(`${API_BASE_PATH}/governance/simulation/state`);
 }

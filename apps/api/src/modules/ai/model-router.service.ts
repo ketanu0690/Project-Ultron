@@ -1,10 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { buildAgentCompletionPrompt } from '@ultron/personality';
+
+export interface RetrievedMemoryContext {
+  content: string;
+  type?: string;
+}
 
 export interface StreamCompletionInput {
   agentId: string;
   agentName: string;
   agentRole: string;
   message: string;
+  memories?: RetrievedMemoryContext[];
 }
 
 export interface StreamToken {
@@ -13,6 +20,10 @@ export interface StreamToken {
 }
 
 const STUB_CHUNK_DELAY_MS = 40;
+
+interface BytesStreamReader {
+  read(): Promise<{ done: boolean; value?: Uint8Array }>;
+}
 
 @Injectable()
 export class ModelRouterService {
@@ -24,6 +35,23 @@ export class ModelRouterService {
 
   private get ollamaModel(): string {
     return process.env.OLLAMA_MODEL ?? 'llama3.2';
+  }
+
+  private buildPrompt(input: StreamCompletionInput): string {
+    if (!input.memories?.length) {
+      return buildAgentCompletionPrompt(input);
+    }
+
+    const memoryLines = input.memories
+      .map((memory) => `- [${memory.type ?? 'memory'}] ${memory.content}`)
+      .join('\n');
+
+    return [
+      buildAgentCompletionPrompt(input).replace(
+        `Visitor: ${input.message}`,
+        `Relevant memories:\n${memoryLines}\n\nVisitor: ${input.message}`,
+      ),
+    ].join('\n');
   }
 
   async *streamCompletion(
@@ -40,16 +68,16 @@ export class ModelRouterService {
   private async *streamFromOllama(
     input: StreamCompletionInput,
   ): AsyncGenerator<StreamToken> {
-    const prompt = [
-      `You are ${input.agentName}, a ${input.agentRole} agent in the Ultron Reasoning District.`,
-      `Respond concisely to the visitor.`,
-      '',
-      `Visitor: ${input.message}`,
-      `${input.agentName}:`,
-    ].join('\n');
+    const prompt = this.buildPrompt(input);
+
+    const baseUrl = this.ollamaBaseUrl;
+    if (!baseUrl) {
+      yield* this.streamStubResponse(input);
+      return;
+    }
 
     try {
-      const response = await fetch(`${this.ollamaBaseUrl}/api/generate`, {
+      const response = await fetch(`${baseUrl}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -61,23 +89,25 @@ export class ModelRouterService {
 
       if (!response.ok || !response.body) {
         this.logger.warn(
-          `Ollama request failed (${response.status}); falling back to stub`,
+          `Ollama request failed (${String(response.status)}); falling back to stub`,
         );
         yield* this.streamStubResponse(input);
         return;
       }
 
-      const reader = response.body.getReader();
+      const reader = response.body.getReader() as BytesStreamReader;
       const decoder = new TextDecoder();
       let buffer = '';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
+      for (;;) {
+        const chunk = await reader.read();
+        if (chunk.done) {
           break;
         }
 
-        buffer += decoder.decode(value, { stream: true });
+        if (chunk.value !== undefined) {
+          buffer += decoder.decode(chunk.value, { stream: true });
+        }
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
 
@@ -102,9 +132,8 @@ export class ModelRouterService {
 
       yield { token: '', done: true };
     } catch (error) {
-      this.logger.warn(
-        `Ollama stream error: ${error instanceof Error ? error.message : 'unknown'}`,
-      );
+      const detail = error instanceof Error ? error.message : 'unknown';
+      this.logger.warn(`Ollama stream error: ${detail}`);
       yield* this.streamStubResponse(input);
     }
   }
@@ -112,7 +141,11 @@ export class ModelRouterService {
   private async *streamStubResponse(
     input: StreamCompletionInput,
   ): AsyncGenerator<StreamToken> {
-    const text = `[${input.agentName} · ${input.agentRole}] Acknowledged: "${input.message.trim()}". I am operating in stub mode — connect OLLAMA_BASE_URL for live inference.`;
+    const memoryNote =
+      input.memories && input.memories.length > 0
+        ? ` (recalled ${String(input.memories.length)} memories)`
+        : '';
+    const text = `[${input.agentName} · ${input.agentRole}] Acknowledged: "${input.message.trim()}"${memoryNote}. I am operating in stub mode — connect OLLAMA_BASE_URL for live inference.`;
     const words = text.split(/(\s+)/);
 
     for (const word of words) {

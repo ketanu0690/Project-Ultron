@@ -37,6 +37,8 @@ The `@ci` tagged spec uses `?scale=megacity` to skip the scroll journey (avoids 
 npm run test:e2e:ci --workspace @ultron/web
 ```
 
+GitLab CI runs this as the `e2e:galaxy-journey` job (`infra/.gitlab-ci.yml`) against a spun-up Postgres + API + web stack. The job is **non-blocking** (`allow_failure: true`) until flake rate is validated.
+
 ## Specs
 
 | File                     | Path                                                                                        |

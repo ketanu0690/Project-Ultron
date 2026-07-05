@@ -36,4 +36,4 @@
 - [`../adr/0008-mvp-entry-and-scale-stack.md`](../adr/0008-mvp-entry-and-scale-stack.md) — entry point and scale stack
 - [`../memory/project-context.md`](../memory/project-context.md) — session bootstrap
 
-_Last updated: 2026-06-14_
+_Last updated: 2026-07-04_

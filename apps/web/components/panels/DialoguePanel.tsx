@@ -22,17 +22,13 @@ export function DialoguePanel(): React.JSX.Element | null {
   const { sendMessage, isStreaming, connectionStatus, error } =
     useAgentDialogue();
 
-  const [showWarning, setShowWarning] = useState(false);
+  const [showWarning, setShowWarning] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.localStorage.getItem(DIALOGUE_WARNING_KEY) !== 'true',
+  );
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-    const seen = window.localStorage.getItem(DIALOGUE_WARNING_KEY);
-    setShowWarning(seen !== 'true');
-  }, [isOpen]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({

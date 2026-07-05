@@ -60,6 +60,7 @@ export function TransitionFlightEffects(): React.JSX.Element | null {
   const pointsRef = useRef<Points>(null);
   const particles = useMemo(() => createFlightParticles(), []);
 
+  /* eslint-disable react-hooks/immutability -- R3F ShaderMaterial uniform updates in useFrame */
   useFrame((_, delta) => {
     const material = particles.material;
     const targetOpacity =
@@ -71,6 +72,7 @@ export function TransitionFlightEffects(): React.JSX.Element | null {
       pointsRef.current.rotation.z += delta * 0.4;
     }
   });
+  /* eslint-enable react-hooks/immutability */
 
   if (!isTransitioning) {
     return null;

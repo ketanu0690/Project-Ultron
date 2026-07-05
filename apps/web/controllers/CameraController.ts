@@ -23,14 +23,12 @@ import {
 import {
   applyEasing,
   interpolateAlongPath,
-  type EasingName,
   type TransitionPath,
 } from '@/lib/transition-paths';
 import {
   createDefaultCameraState,
   getCameraPreset,
   type CameraPreset,
-  type ControlsProfile,
 } from '@/lib/camera-presets';
 
 const _position = new Vector3();
@@ -301,6 +299,23 @@ export class CameraController {
     const state = this.readStateFromControls();
     this.lastPersistedState = state;
     return state;
+  }
+
+  nudgePosition(position: readonly [number, number, number]): void {
+    if (!this.controls) {
+      return;
+    }
+    const state = this.readStateFromControls();
+    void this.controls.setLookAt(
+      position[0],
+      position[1],
+      position[2],
+      state.target.x,
+      state.target.y,
+      state.target.z,
+      false,
+    );
+    this.lastPersistedState = this.readStateFromControls();
   }
 
   getScaledSpeed(altitude?: number): number {

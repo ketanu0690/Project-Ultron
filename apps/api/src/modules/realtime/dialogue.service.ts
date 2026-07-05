@@ -70,7 +70,7 @@ export class DialogueService {
     }
     if (trimmed.length > DIALOGUE_MESSAGE_MAX_LENGTH) {
       throw new BadRequestException(
-        `Message exceeds ${DIALOGUE_MESSAGE_MAX_LENGTH} characters`,
+        `Message exceeds ${String(DIALOGUE_MESSAGE_MAX_LENGTH)} characters`,
       );
     }
   }

@@ -1,6 +1,7 @@
 import type {
   AgentDialogueClientPayload,
   AgentDialogueServerPayload,
+  AgentStatusPayload,
   ServerWsEvent,
   WsMessage,
 } from '@ultron/shared';
@@ -12,6 +13,7 @@ export type WsConnectionState = 'idle' | 'connecting' | 'connected' | 'error';
 export interface AgentDialogueSocketHandlers {
   onConnectionChange?: (state: WsConnectionState) => void;
   onDialogueChunk?: (payload: AgentDialogueServerPayload) => void;
+  onAgentStatus?: (payload: AgentStatusPayload) => void;
   onError?: (message: string) => void;
 }
 
@@ -69,6 +71,9 @@ export class AgentDialogueSocket {
 
       if (parsed.event === 'agent:dialogue') {
         this.handlers.onDialogueChunk?.(parsed.payload);
+      }
+      if (parsed.event === 'agent:status') {
+        this.handlers.onAgentStatus?.(parsed.payload);
       }
     });
 

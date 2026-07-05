@@ -2,15 +2,10 @@ import type {
   Agent,
   AgentMemory,
   AgentMemoryMetadata,
-  AgentRole,
-  AgentStatus,
   Building,
-  BuildingDetailLevel,
-  BuildingState,
   District,
   DistrictId,
   DistrictThemeConfig,
-  MemoryType,
   Room,
   RoomType,
   Vec3Json,
@@ -171,6 +166,12 @@ export function toAgent(record: PrismaAgent): Agent {
     model: record.model,
     version: record.version,
     status: record.status,
+    position: {
+      x: record.positionX,
+      y: record.positionY,
+      z: record.positionZ,
+    },
+    rotationY: record.rotationY,
     capabilities: mapCapabilities(record.capabilities),
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
@@ -227,7 +228,7 @@ export function groupRoomsIntoFloors(
   return [...byLevel.entries()]
     .sort(([levelA], [levelB]) => levelA - levelB)
     .map(([level, floorRooms]) => ({
-      id: `${buildingId}-floor-${level}`,
+      id: `${buildingId}-floor-${String(level)}`,
       level,
       rooms: floorRooms,
     }));

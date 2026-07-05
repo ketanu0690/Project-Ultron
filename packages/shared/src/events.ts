@@ -65,8 +65,45 @@ export interface AgentStatusPayload {
   agentId: string;
   status: AgentStatus;
   position?: [number, number, number];
+  rotationY?: number;
   buildingId?: string;
   roomId?: string;
+}
+
+export interface AgentConversationPayload {
+  conversationId: string;
+  agentIds: [string, string];
+  turn: number;
+  speakerId: string;
+  token?: string;
+  done?: boolean;
+}
+
+export interface SimulationTickPayload {
+  tickId: number;
+  worldState: WorldStateVariables;
+  changes: Record<string, unknown>;
+}
+
+export interface SimulationEventPayload {
+  eventId: string;
+  type: string;
+  severity: string;
+  data: Record<string, unknown>;
+  tickId?: number;
+}
+
+export interface GovernancePolicyPayload {
+  policyId: string;
+  slug: string;
+  domain: string;
+  change: 'created' | 'updated' | 'deactivated';
+  policy: {
+    name: string;
+    rules: Record<string, unknown>;
+    version: number;
+    active: boolean;
+  };
 }
 
 export interface AgentDialogueServerPayload {
@@ -107,6 +144,10 @@ export type ServerWsEvent =
   | { event: 'world:state'; payload: WorldStatePayload }
   | { event: 'world:snapshot'; payload: WorldSnapshotPayload }
   | { event: 'agent:status'; payload: AgentStatusPayload }
+  | { event: 'agent:conversation'; payload: AgentConversationPayload }
   | { event: 'agent:dialogue'; payload: AgentDialogueServerPayload }
   | { event: 'building:metrics'; payload: BuildingMetricsPayload }
+  | { event: 'simulation:tick'; payload: SimulationTickPayload }
+  | { event: 'simulation:event'; payload: SimulationEventPayload }
+  | { event: 'governance:policy'; payload: GovernancePolicyPayload }
   | { event: 'pong'; payload: PongPayload };

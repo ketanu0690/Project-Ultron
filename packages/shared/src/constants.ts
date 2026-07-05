@@ -1,6 +1,6 @@
 export const MAX_AGENTS_MVP = 50;
 
-/** OpenAI text-embedding-3-small default; pgvector column deferred until semantic search. */
+/** OpenAI text-embedding-3-small; stored in agent_memories.embedding (vector 1536). */
 export const EMBEDDING_DIMENSIONS = 1536;
 
 export const WS_CHANNELS = {

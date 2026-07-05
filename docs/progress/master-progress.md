@@ -6,6 +6,23 @@
 
 ---
 
+## Executive Summary (2026-07-04 — M1 complete)
+
+Project-Ultron has a **mature documentation foundation** (~95% complete) and a **working MVP scaffold** with Galaxy-first entry ([ADR-0016](../adr/0016-galaxy-first-entry-and-scale-phasing.md)), Nexus REST hydration, and Phoenix dialogue streaming. **M1 Foundation is complete.**
+
+| Layer                          | Completion (Jul 2026)                                                                    |
+| ------------------------------ | ---------------------------------------------------------------------------------------- |
+| Documentation & ADRs           | **95%** (16 ADRs incl. ADR-0016)                                                         |
+| M1 Foundation                  | **100%** — personality package, Grafana dashboards, pgvector column, CI/lint green       |
+| M2 MVP (shippable product)     | **~55%** — city chain + Talk + View Memory wired; polish + E2E CI with live stack remain |
+| M3 v1 features                 | **~25%**                                                                                 |
+| M4 v2 features                 | **~5%**                                                                                  |
+| **Overall project completion** | **~38%**                                                                                 |
+
+**MVP exit criterion** (_galaxy journey → megacity → Reasoning → Planning Tower → talk to agent → view memory_) — **partially met** (manual path verified; Playwright automation added 2026-06-16). Remaining gaps: static `shell-data.ts` fallbacks, full E2E in CI with live stack.
+
+---
+
 ## Executive Summary (2026-06-16 reconciliation)
 
 Project-Ultron has a **mature documentation foundation** (~95% complete) and a **working MVP scaffold** with Galaxy-first entry ([ADR-0016](../adr/0016-galaxy-first-entry-and-scale-phasing.md)), Nexus REST hydration, and Phoenix dialogue streaming.

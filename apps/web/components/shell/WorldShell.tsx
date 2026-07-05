@@ -1,8 +1,10 @@
 'use client';
 
 import { BottomHUD } from '@/components/hud/BottomHUD';
+import { AgentMiniMap } from '@/components/hud/AgentMiniMap';
 import { TopBar } from '@/components/hud/TopBar';
 import { DialoguePanel } from '@/components/panels/DialoguePanel';
+import { GovernancePanel } from '@/components/panels/GovernancePanel';
 import { LeftSidebar } from '@/components/panels/LeftSidebar';
 import { RightSidebar } from '@/components/panels/RightSidebar';
 import { ShortcutsOverlay } from '@/components/panels/ShortcutsOverlay';
@@ -38,6 +40,8 @@ export function WorldShell({
 
         <div className="relative min-w-0 flex-1">
           {children}
+          <AgentMiniMap />
+          <GovernancePanel />
           <DialoguePanel />
           <ShortcutsOverlay />
         </div>

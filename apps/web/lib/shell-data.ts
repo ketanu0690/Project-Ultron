@@ -1,6 +1,5 @@
 import {
   DISTRICT_COLORS,
-  MAX_AGENTS_MVP,
   type DistrictId,
   type ScaleLevel,
 } from '@ultron/shared';
@@ -144,6 +143,7 @@ function createLodFootprintDetail(index: number): EntityDetail {
   };
 }
 
+/** Client-only LOD placeholders — no API rows; kept as static fallback. */
 const LOD_FOOTPRINT_DETAILS: Record<string, EntityDetail> = Object.fromEntries(
   Array.from({ length: 9 }, (_, index) => {
     const detail = createLodFootprintDetail(index + 1);
@@ -151,210 +151,10 @@ const LOD_FOOTPRINT_DETAILS: Record<string, EntityDetail> = Object.fromEntries(
   }),
 );
 
-const ENTITY_DETAILS: Record<string, EntityDetail> = {
-  'district-perception': {
-    id: 'district-perception',
-    name: 'Perception District',
-    type: 'district',
-    scale: 'district',
-    status: 'nominal',
-    districtId: 'perception',
-    subtitle: 'The Eyes and Ears',
-    description:
-      'Gather and observe — internet nexus, sensor arrays, and signal intake.',
-    metrics: [
-      { label: 'Agents', value: '0', accent: 'text-signal-cyan' },
-      { label: 'Throughput', value: '—', accent: 'text-text-secondary' },
-      { label: 'Coverage', value: '12%', accent: 'text-signal-amber' },
-    ],
-    canTalk: false,
-    canEnter: true,
-    canViewMemory: false,
-    enterScale: 'district',
-  },
-  'district-memory': {
-    id: 'district-memory',
-    name: 'Memory District',
-    type: 'district',
-    scale: 'district',
-    status: 'nominal',
-    districtId: 'memory',
-    subtitle: 'The Vault of Knowledge',
-    description:
-      'Store and learn — archives, embeddings, and world-model retention.',
-    metrics: [
-      { label: 'Agents', value: '0', accent: 'text-signal-cyan' },
-      { label: 'Throughput', value: '—', accent: 'text-text-secondary' },
-      { label: 'Archives', value: '2.4 PB', accent: 'text-signal-green' },
-    ],
-    canTalk: false,
-    canEnter: true,
-    canViewMemory: false,
-    enterScale: 'district',
-  },
-  'district-reasoning': {
-    id: 'district-reasoning',
-    name: 'Reasoning District',
-    type: 'district',
-    scale: 'district',
-    status: 'online',
-    districtId: 'reasoning',
-    subtitle: 'The Mind and Intellect',
-    description:
-      'Analyze and predict — logic engines, simulation chambers, planning systems.',
-    metrics: [
-      {
-        label: 'Agents',
-        value: String(MAX_AGENTS_MVP),
-        accent: 'text-signal-cyan',
-      },
-      { label: 'Throughput', value: '1.2k/s', accent: 'text-signal-green' },
-      { label: 'Simulations', value: '8 active', accent: 'text-signal-amber' },
-    ],
-    canTalk: false,
-    canEnter: true,
-    canViewMemory: false,
-    enterScale: 'district',
-  },
-  'district-action': {
-    id: 'district-action',
-    name: 'Action District',
-    type: 'district',
-    scale: 'district',
-    status: 'nominal',
-    districtId: 'action',
-    subtitle: 'The Hands and Execution',
-    description:
-      'Execute and control — robotics foundries and infrastructure controllers.',
-    metrics: [
-      { label: 'Agents', value: '0', accent: 'text-signal-cyan' },
-      { label: 'Throughput', value: '—', accent: 'text-text-secondary' },
-      { label: 'Tasks', value: '0 queued', accent: 'text-text-secondary' },
-    ],
-    canTalk: false,
-    canEnter: true,
-    canViewMemory: false,
-    enterScale: 'district',
-  },
-  'district-self-improvement': {
-    id: 'district-self-improvement',
-    name: 'Self Improvement District',
-    type: 'district',
-    scale: 'district',
-    status: 'nominal',
-    districtId: 'self_improvement',
-    subtitle: 'The Path to Perfection',
-    description:
-      'Evolve and upgrade — model refinement labs and meta-learning engines.',
-    metrics: [
-      { label: 'Agents', value: '0', accent: 'text-signal-cyan' },
-      { label: 'Throughput', value: '—', accent: 'text-text-secondary' },
-      { label: 'Models', value: '3 in review', accent: 'text-signal-purple' },
-    ],
-    canTalk: false,
-    canEnter: true,
-    canViewMemory: false,
-    enterScale: 'district',
-  },
-  'building-planning-tower': {
-    id: 'building-planning-tower',
-    name: 'Planning Tower',
-    type: 'building',
-    scale: 'building',
-    status: 'online',
-    districtId: 'reasoning',
-    subtitle: 'Reasoning District',
-    description:
-      'Central planning and simulation hub for strategic intelligence.',
-    metrics: [
-      { label: 'Utilization', value: '87%', accent: 'text-signal-green' },
-      { label: 'Agents', value: '12', accent: 'text-signal-cyan' },
-      { label: 'Rooms', value: '3', accent: 'text-text-secondary' },
-    ],
-    canTalk: false,
-    canEnter: true,
-    canViewMemory: false,
-    enterScale: 'building',
-  },
-  'room-strategy': {
-    id: 'room-strategy',
-    name: 'Strategy Room',
-    type: 'room',
-    scale: 'room',
-    status: 'nominal',
-    districtId: 'reasoning',
-    subtitle: 'Planning Tower · Floor 12',
-    description: 'Collaborative strategy space for planners and simulators.',
-    metrics: [
-      { label: 'Agents Present', value: '1', accent: 'text-signal-cyan' },
-      { label: 'Occupancy', value: '33%', accent: 'text-signal-green' },
-      { label: 'Sessions', value: '2 today', accent: 'text-text-secondary' },
-    ],
-    canTalk: false,
-    canEnter: true,
-    canViewMemory: false,
-    enterScale: 'room',
-  },
-  'room-plan-vault': {
-    id: 'room-plan-vault',
-    name: 'Plan Vault',
-    type: 'room',
-    scale: 'room',
-    status: 'nominal',
-    districtId: 'reasoning',
-    subtitle: 'Planning Tower · Floor 8',
-    description: 'Secure archive for strategic plans and simulation outputs.',
-    metrics: [
-      { label: 'Agents Present', value: '0', accent: 'text-text-secondary' },
-      { label: 'Occupancy', value: '0%', accent: 'text-text-secondary' },
-      { label: 'Archives', value: '24 plans', accent: 'text-signal-green' },
-    ],
-    canTalk: false,
-    canEnter: false,
-    canViewMemory: false,
-  },
-  'room-observation-deck': {
-    id: 'room-observation-deck',
-    name: 'Observation Deck',
-    type: 'room',
-    scale: 'room',
-    status: 'nominal',
-    districtId: 'reasoning',
-    subtitle: 'Planning Tower · Floor 16',
-    description:
-      'Panoramic overview of district operations and simulation feeds.',
-    metrics: [
-      { label: 'Agents Present', value: '0', accent: 'text-text-secondary' },
-      { label: 'Occupancy', value: '0%', accent: 'text-text-secondary' },
-      { label: 'Feeds', value: '12 active', accent: 'text-signal-cyan' },
-    ],
-    canTalk: false,
-    canEnter: false,
-    canViewMemory: false,
-  },
-  'agent-sigma-7': {
-    id: 'agent-sigma-7',
-    name: 'Analyst Sigma-7',
-    type: 'agent',
-    scale: 'agent',
-    status: 'online',
-    districtId: 'reasoning',
-    subtitle: 'Strategy Room · Planner',
-    description:
-      'Strategic planning agent specializing in threat analysis and resource allocation.',
-    metrics: [
-      { label: 'Model', value: 'ultron-v1', accent: 'text-signal-purple' },
-      { label: 'Uptime', value: '99.7%', accent: 'text-signal-green' },
-      { label: 'Tasks', value: '4 active', accent: 'text-signal-cyan' },
-    ],
-    canTalk: true,
-    canEnter: false,
-    canViewMemory: true,
-    enterScale: 'agent',
-  },
-  ...LOD_FOOTPRINT_DETAILS,
-};
-
+/**
+ * Resolve entity detail for shell UI. Prefers API-hydrated worldStore;
+ * falls back only to client-only LOD footprints when store is empty.
+ */
 export function getEntityDetail(entityId: string | null): EntityDetail | null {
   if (!entityId) {
     return null;
@@ -365,7 +165,7 @@ export function getEntityDetail(entityId: string | null): EntityDetail | null {
     return fromWorld;
   }
 
-  return ENTITY_DETAILS[entityId] ?? null;
+  return LOD_FOOTPRINT_DETAILS[entityId] ?? null;
 }
 
 export function getDistrictAccent(districtId?: DistrictId): string {

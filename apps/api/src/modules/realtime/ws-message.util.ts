@@ -22,15 +22,19 @@ export function createWsMessage<T>(
 
 export function parseWsMessage(raw: string): WsMessage | null {
   try {
-    const parsed = JSON.parse(raw) as WsMessage;
+    const parsed: unknown = JSON.parse(raw);
     if (
-      typeof parsed.event !== 'string' ||
-      parsed.version !== 1 ||
-      parsed.payload === undefined
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      !('event' in parsed) ||
+      !('version' in parsed) ||
+      !('payload' in parsed) ||
+      typeof (parsed as { event: unknown }).event !== 'string' ||
+      (parsed as { version: unknown }).version !== 1
     ) {
       return null;
     }
-    return parsed;
+    return parsed as WsMessage;
   } catch {
     return null;
   }

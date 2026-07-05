@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-import { fetchAgentMemories, fetchNavigation } from '@/lib/api-endpoints';
+import { fetchNavigation } from '@/lib/api-endpoints';
 import { buildBreadcrumbs } from '@/lib/navigation-breadcrumbs';
 import { getEntityDetail } from '@/lib/shell-data';
 import { useNavigationStore } from '@/stores/navigationStore';

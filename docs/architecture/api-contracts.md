@@ -93,7 +93,7 @@ GET   /agents/:id
 POST  /agents/:id/dialogue          # Initiate; stream via WS or SSE
 GET   /agents/:id/status
 GET   /agents/:id/memory
-POST  /agents/:id/memory/search     # v2: semantic search
+POST  /agents/:id/memory/search     # v1: semantic search (pgvector)
 POST  /agents/:id/delegate          # v1
 ```
 

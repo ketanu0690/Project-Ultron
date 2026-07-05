@@ -7,10 +7,11 @@ COPY apps/api ./apps/api
 COPY packages/shared ./packages/shared
 RUN npm ci --workspaces --include-workspace-root
 RUN npm run build --workspace @ultron/shared
-RUN mkdir -p node_modules/@ultron/shared apps/api/node_modules/@ultron/shared \
+RUN rm -rf node_modules/@ultron/shared apps/api/node_modules/@ultron/shared \
+  && mkdir -p node_modules/@ultron/shared apps/api/node_modules/@ultron/shared \
   && cp packages/shared/package.json node_modules/@ultron/shared/ \
   && cp -r packages/shared/dist node_modules/@ultron/shared/dist \
-  && cp -r node_modules/@ultron/shared apps/api/node_modules/@ultron/shared
+  && cp -r node_modules/@ultron/shared/. apps/api/node_modules/@ultron/shared/
 RUN npm run build --workspace @ultron/api
 RUN npx esbuild apps/api/prisma/seed.ts --bundle --platform=node --format=cjs --packages=external --outfile=apps/api/prisma/dist/seed.js
 

@@ -35,6 +35,18 @@ export class AgentsService {
       where.status = query.status;
     }
 
+    if (query.viewport !== undefined) {
+      const parts = query.viewport.split(',').map((part) => Number(part));
+      if (
+        parts.length === 4 &&
+        parts.every((value) => Number.isFinite(value))
+      ) {
+        const [minX, minZ, maxX, maxZ] = parts;
+        where.positionX = { gte: minX, lte: maxX };
+        where.positionZ = { gte: minZ, lte: maxZ };
+      }
+    }
+
     return where;
   }
 

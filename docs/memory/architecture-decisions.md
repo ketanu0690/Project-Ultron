@@ -25,15 +25,17 @@
 | 13  | Simulation v1; governance UI v2                       | [0013](../adr/0013-simulation-vs-governance-phasing.md)                                                              |
 | 14  | Performance: design 60 FPS, ship 30 FPS               | [0014](../adr/0014-performance-targets.md)                                                                           |
 | 15  | API + WebSocket contract                              | [0015](../adr/0015-api-and-realtime-contract.md)                                                                     |
+| 17  | Autonomous living world (phased)                      | [0017](../adr/0017-autonomous-living-world.md) — Phase 1: LangGraph dialogue + semantic memory                       |
 
 ## Working Notes (Not ADRs)
 
-| Date       | Note                                                                     | Proposal / doc                                                                                                                             |
-| ---------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2026-06-16 | **UI-first development** adopted — screens drive API contracts           | [`ui-first-workflow.md`](./ui-first-workflow.md)                                                                                           |
-| 2026-06-16 | **Galaxy-first single entry approved** — showcase = default = production | [Proposal 0001](../proposals/0001-ui-first-mvp-entry-and-cosmic-stack.md) ✅                                                               |
-| 2026-06-16 | ADR-0016 accepted — galaxy entry, cosmic transitions                     | [Proposal 0002](../proposals/0002-supersede-adr-0008-galaxy-entry.md) ✅ → [ADR-0016](../adr/0016-galaxy-first-entry-and-scale-phasing.md) |
-| 2026-06-16 | Galaxy-first sprint plan (Phase 1–3)                                     | [`galaxy-first-roadmap.md`](./galaxy-first-roadmap.md)                                                                                     |
+| Date       | Note                                                                      | Proposal / doc                                                                                                                             |
+| ---------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-06-16 | **UI-first development** adopted — screens drive API contracts            | [`ui-first-workflow.md`](./ui-first-workflow.md)                                                                                           |
+| 2026-06-16 | **Galaxy-first single entry approved** — showcase = default = production  | [Proposal 0001](../proposals/0001-ui-first-mvp-entry-and-cosmic-stack.md) ✅                                                               |
+| 2026-06-16 | ADR-0016 accepted — galaxy entry, cosmic transitions                      | [Proposal 0002](../proposals/0002-supersede-adr-0008-galaxy-entry.md) ✅ → [ADR-0016](../adr/0016-galaxy-first-entry-and-scale-phasing.md) |
+| 2026-06-16 | Galaxy-first sprint plan (Phase 1–3)                                      | [`galaxy-first-roadmap.md`](./galaxy-first-roadmap.md)                                                                                     |
+| 2026-07-04 | **Autonomous living world approved** — AI Town direction; phased delivery | [Proposal 0003](../proposals/0003-autonomous-living-world.md) ✅ → [ADR-0017](../adr/0017-autonomous-living-world.md)                      |
 
 ## Open (Not Yet Decided)
 

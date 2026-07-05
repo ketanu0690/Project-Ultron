@@ -12,6 +12,7 @@ import { useGalaxyNavigation } from '@/hooks/useGalaxyNavigation';
 import { useInitialNavigation } from '@/hooks/useInitialNavigation';
 import { useNavigationUrlSync } from '@/hooks/useNavigationUrlSync';
 import { useWorldSync } from '@/hooks/useWorldSync';
+import { useWorldRealtime } from '@/hooks/useWorldRealtime';
 import { useScaleUrlParam } from '@/hooks/useScaleUrlParam';
 import { useScrollJourney } from '@/hooks/useScrollJourney';
 
@@ -48,6 +49,7 @@ export default function Home(): React.JSX.Element {
   const canvasHostRef = useRef<HTMLDivElement>(null);
   useInitialNavigation();
   useWorldSync();
+  useWorldRealtime();
   useGalaxyNavigation();
   useScrollJourney(canvasHostRef);
 

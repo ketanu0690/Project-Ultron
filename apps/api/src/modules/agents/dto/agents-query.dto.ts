@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 import {
   AGENT_STATUSES,
@@ -16,6 +16,11 @@ export class AgentsQueryDto {
   @IsOptional()
   @IsIn([...AGENT_STATUSES])
   status?: AgentStatus;
+
+  /** Viewport bounds: minX,minZ,maxX,maxZ (district-local meters) */
+  @IsOptional()
+  @IsString()
+  viewport?: string;
 
   @IsOptional()
   @Type(() => Number)

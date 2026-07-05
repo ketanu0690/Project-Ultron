@@ -4,22 +4,28 @@ stages:
   - typecheck
   - test
   - build
+  - e2e
 
 variables:
-  PNPM_VERSION: '10.12.1'
   NODE_VERSION: '20'
+  POSTGRES_USER: ultron
+  POSTGRES_DB: ultron
+  POSTGRES_PASSWORD: ci-e2e-password
+  DATABASE_URL: postgresql://ultron:ci-e2e-password@postgres:5432/ultron
+  NEXT_PUBLIC_API_URL: http://localhost:4000
+  NEXT_PUBLIC_WS_URL: ws://localhost:4000/ws
+  PLAYWRIGHT_BASE_URL: http://localhost:3000
 
 default:
   image: node:${NODE_VERSION}-bookworm
   before_script:
-    - corepack enable
-    - corepack prepare pnpm@${PNPM_VERSION} --activate
-    - pnpm install --frozen-lockfile
+    - npm ci
 
 cache:
-  key: ${CI_COMMIT_REF_SLUG}
+  key:
+    files:
+      - package-lock.json
   paths:
-    - .pnpm-store
     - node_modules/
     - apps/*/node_modules/
     - packages/*/node_modules/
@@ -27,7 +33,7 @@ cache:
 install:
   stage: install
   script:
-    - pnpm install --frozen-lockfile
+    - npm ci
   artifacts:
     paths:
       - node_modules/
@@ -39,22 +45,70 @@ lint:
   stage: lint
   needs: [install]
   script:
-    - pnpm lint
+    - npm run lint
 
 typecheck:
   stage: typecheck
   needs: [install]
   script:
-    - pnpm typecheck
+    - npm run typecheck
 
 test:api:
   stage: test
   needs: [install]
   script:
-    - pnpm --filter @ultron/api test
+    - npm run test --workspace @ultron/api
+
+test:web:
+  stage: test
+  needs: [install]
+  script:
+    - npm run test --workspace @ultron/web
 
 build:
   stage: build
-  needs: [lint, typecheck, test:api]
+  needs: [lint, typecheck, test:api, test:web]
   script:
-    - pnpm build
+    - npm run build
+
+e2e:galaxy-journey:
+  stage: e2e
+  needs: [build]
+  allow_failure: true
+  services:
+    - name: pgvector/pgvector:pg16
+      alias: postgres
+  variables:
+    FF_NETWORK_PER_BUILD: 'true'
+  script:
+    - npm run build --workspace @ultron/personality
+    - npm run build --workspace @ultron/shared
+    - npm run db:migrate:deploy --workspace @ultron/api
+    - npm run db:seed --workspace @ultron/api
+    - npm run start --workspace @ultron/api &
+    - |
+      for i in $(seq 1 30); do
+        if wget -qO- http://localhost:4000/api/v1/health > /dev/null 2>&1; then
+          echo "API ready"
+          break
+        fi
+        sleep 2
+      done
+    - npm run build --workspace @ultron/web
+    - npm run start --workspace @ultron/web &
+    - |
+      for i in $(seq 1 30); do
+        if wget -qO- http://localhost:3000 > /dev/null 2>&1; then
+          echo "Web ready"
+          break
+        fi
+        sleep 2
+      done
+    - npx playwright install --with-deps chromium
+    - npm run test:e2e:ci --workspace @ultron/web
+  artifacts:
+    when: on_failure
+    paths:
+      - apps/web/test-results/
+      - apps/web/playwright-report/
+    expire_in: 1 week

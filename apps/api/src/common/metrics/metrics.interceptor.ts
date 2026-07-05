@@ -33,13 +33,7 @@ export class MetricsInterceptor implements NestInterceptor {
   }
 
   private record(request: Request, statusCode: number, started: bigint): void {
-    const routePath =
-      typeof request.route === 'object' &&
-      request.route !== null &&
-      'path' in request.route &&
-      typeof request.route.path === 'string'
-        ? request.route.path
-        : request.path;
+    const routePath = this.resolveRoutePath(request);
     const labels = {
       method: request.method,
       route: routePath,
@@ -50,5 +44,13 @@ export class MetricsInterceptor implements NestInterceptor {
       Number(process.hrtime.bigint() - started) / 1_000_000_000;
     this.metricsService.httpRequestsTotal.inc(labels);
     this.metricsService.httpRequestDuration.observe(labels, durationSeconds);
+  }
+
+  private resolveRoutePath(request: Request): string {
+    const route = request.route as { path?: string } | undefined;
+    if (route?.path !== undefined) {
+      return route.path;
+    }
+    return request.path;
   }
 }

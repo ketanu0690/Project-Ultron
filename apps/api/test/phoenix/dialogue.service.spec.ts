@@ -11,7 +11,12 @@ describe('phoenix DialogueService', () => {
     },
   };
 
-  const orchestrator = new AgentOrchestratorService(new ModelRouterService());
+  const orchestrator = new AgentOrchestratorService(
+    new ModelRouterService(),
+    { retrieve: jest.fn().mockResolvedValue([]) } as never,
+    { getSaver: jest.fn().mockResolvedValue(undefined) } as never,
+    { storeDialogueTurn: jest.fn().mockResolvedValue(undefined) } as never,
+  );
   const service = new DialogueService(prisma as never, orchestrator);
 
   beforeEach(() => {

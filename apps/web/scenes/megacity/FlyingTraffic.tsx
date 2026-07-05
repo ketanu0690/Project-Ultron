@@ -37,8 +37,8 @@ function TrafficVehicle({
   const [hovered, setHovered] = useState(false);
 
   const pathPoints = useMemo(() => {
-    const [fx, fy, fz] = route.from;
-    const [tx, ty, tz] = route.to;
+    const [fx, , fz] = route.from;
+    const [tx, , tz] = route.to;
     const laneY = route.laneHeight;
     return [
       new Vector3(fx, laneY, fz),
@@ -118,7 +118,7 @@ function TrafficVehicle({
           distanceFactor={400}
           style={{ pointerEvents: 'none' }}
         >
-          <div className="border-signal-cyan/40 bg-void-black/90 whitespace-nowrap rounded border px-2 py-1 text-[10px] backdrop-blur-md">
+          <div className="border-signal-cyan/40 bg-void-black/90 rounded border px-2 py-1 text-[10px] whitespace-nowrap backdrop-blur-md">
             <span className="text-signal-cyan capitalize">
               {route.vehicleType}
             </span>

@@ -1,8 +1,8 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
-import { DoubleSide, SRGBColorSpace, type Mesh } from 'three';
+import { useRef } from 'react';
+import { DoubleSide, type Mesh } from 'three';
 
 import { EARTH_RADIUS_M } from '@/scenes/earth/earth.mock';
 import { useEarthTextures } from '@/scenes/earth/useEarthTextures';
@@ -19,11 +19,6 @@ export function CloudLayer({
 }: CloudLayerProps): React.JSX.Element {
   const meshRef = useRef<Mesh>(null);
   const { clouds } = useEarthTextures();
-
-  useMemo(() => {
-    clouds.colorSpace = SRGBColorSpace;
-    clouds.needsUpdate = true;
-  }, [clouds]);
 
   useFrame((_, delta) => {
     if (!animate || !meshRef.current) {

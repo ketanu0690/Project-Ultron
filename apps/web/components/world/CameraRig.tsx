@@ -9,6 +9,8 @@ import {
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
 
+import { resolveCameraCollision } from '@/controllers/CameraCollision';
+
 import { cameraStatesEqual } from '@/lib/camera-constraints';
 import { hasWheelDollyControl } from '@/lib/camera-interaction';
 import { getCameraController } from '@/lib/camera-controller-instance';
@@ -40,6 +42,7 @@ export function CameraRig(): React.JSX.Element {
   const [px, py, pz] = preset.defaultPosition;
 
   const invalidate = useThree((state) => state.invalidate);
+  const scene = useThree((state) => state.scene);
 
   useEffect(() => {
     controller.configureControlsImpl(CameraControlsImpl);
@@ -99,11 +102,13 @@ export function CameraRig(): React.JSX.Element {
 
     controller.attach(controls.camera, controls);
     const nextState = controller.syncFromControls();
+    resolveCameraCollision(controls.camera, controller, scene);
+    const corrected = controller.syncFromControls();
     const currentStored = useNavigationStore.getState().cameraState;
 
-    if (!cameraStatesEqual(currentStored, nextState)) {
-      setCameraState(nextState);
-      saveCameraStateForScale(currentScale, nextState);
+    if (!cameraStatesEqual(currentStored, corrected)) {
+      setCameraState(corrected);
+      saveCameraStateForScale(currentScale, corrected);
     }
   };
 
